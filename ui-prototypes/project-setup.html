@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create New Project - Requirement & Effort Tracker</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+          sans-serif;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .setup-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        padding: 48px;
+        width: 100%;
+        max-width: 480px;
+        animation: slideUp 0.5s ease-out;
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .logo {
+        width: 64px;
+        height: 64px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 24px;
+      }
+
+      .logo svg {
+        width: 36px;
+        height: 36px;
+        fill: white;
+      }
+
+      h1 {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1a1a2e;
+        text-align: center;
+        margin-bottom: 12px;
+      }
+
+      .subtitle {
+        color: #6b7280;
+        text-align: center;
+        margin-bottom: 32px;
+        font-size: 15px;
+        line-height: 1.5;
+      }
+
+      .form-group {
+        margin-bottom: 24px;
+      }
+
+      label {
+        display: block;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+        font-size: 14px;
+      }
+
+      .input-wrapper {
+        position: relative;
+      }
+
+      input[type="text"] {
+        width: 100%;
+        padding: 14px 16px;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        font-size: 16px;
+        transition: all 0.2s ease;
+        outline: none;
+      }
+
+      input[type="text"]:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      input[type="text"].error {
+        border-color: #ef4444;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+      }
+
+      input[type="text"]::placeholder {
+        color: #9ca3af;
+      }
+
+      .char-counter {
+        text-align: right;
+        font-size: 12px;
+        color: #9ca3af;
+        margin-top: 6px;
+      }
+
+      .char-counter.warning {
+        color: #f59e0b;
+      }
+
+      .char-counter.error {
+        color: #ef4444;
+      }
+
+      .error-message {
+        color: #ef4444;
+        font-size: 13px;
+        margin-top: 8px;
+        display: none;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .error-message.visible {
+        display: flex;
+      }
+
+      .error-message svg {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+      }
+
+      .btn-primary {
+        width: 100%;
+        padding: 16px 24px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px -10px rgba(102, 126, 234, 0.5);
+      }
+
+      .btn-primary:active {
+        transform: translateY(0);
+      }
+
+      .btn-primary:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .btn-primary svg {
+        width: 20px;
+        height: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="setup-card">
+      <div class="logo">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+          />
+        </svg>
+      </div>
+
+      <h1>Create New Project</h1>
+      <p class="subtitle">
+        Start tracking your project requirements and effort estimates. Enter a
+        name for your project to begin.
+      </p>
+
+      <form id="projectForm">
+        <div class="form-group">
+          <label for="projectName">Project Name</label>
+          <div class="input-wrapper">
+            <input
+              type="text"
+              id="projectName"
+              name="projectName"
+              placeholder="Enter your project name"
+              maxlength="100"
+              autocomplete="off"
+              required
+            />
+          </div>
+          <div class="char-counter">
+            <span id="charCount">0</span>/100 characters
+          </div>
+          <div class="error-message" id="errorMessage">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"
+              />
+            </svg>
+            <span id="errorText">Project name is required</span>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary" id="submitBtn">
+          <span>Create Project</span>
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
+        </button>
+      </form>
+    </div>
+
+    <script>
+      const projectNameInput = document.getElementById("projectName");
+      const charCount = document.getElementById("charCount");
+      const charCounter = document.querySelector(".char-counter");
+      const errorMessage = document.getElementById("errorMessage");
+      const errorText = document.getElementById("errorText");
+      const projectForm = document.getElementById("projectForm");
+
+      // Update character counter
+      projectNameInput.addEventListener("input", function () {
+        const length = this.value.length;
+        charCount.textContent = length;
+
+        // Update counter color based on length
+        charCounter.classList.remove("warning", "error");
+        if (length >= 100) {
+          charCounter.classList.add("error");
+        } else if (length >= 80) {
+          charCounter.classList.add("warning");
+        }
+
+        // Clear error state when typing
+        if (errorMessage.classList.contains("visible")) {
+          errorMessage.classList.remove("visible");
+          projectNameInput.classList.remove("error");
+        }
+      });
+
+      // Form validation and submission
+      projectForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const value = projectNameInput.value.trim();
+
+        // Validation
+        if (!value) {
+          showError("Project name is required");
+          return;
+        }
+
+        if (value.length === 0) {
+          showError("Project name cannot be empty");
+          return;
+        }
+
+        if (value.length > 100) {
+          showError("Project name must be 100 characters or less");
+          return;
+        }
+
+        // Success - redirect to main application
+        // In a real app, this would save to localStorage and redirect
+        alert(
+          'Project "' +
+            value +
+            '" created successfully!\n\nIn the full application, you would be redirected to the main screen.',
+        );
+        window.location.href = "main-application.html";
+      });
+
+      function showError(message) {
+        errorText.textContent = message;
+        errorMessage.classList.add("visible");
+        projectNameInput.classList.add("error");
+        projectNameInput.focus();
+      }
+
+      // Handle Enter key
+      projectNameInput.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+          projectForm.dispatchEvent(new Event("submit"));
+        }
+      });
+
+      // Focus input on page load
+      projectNameInput.focus();
+    </script>
+  </body>
+</html>

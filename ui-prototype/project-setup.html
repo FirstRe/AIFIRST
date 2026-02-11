@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Setup</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest'};</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>::-webkit-scrollbar { display: none;}</style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    },
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-sans antialiased">
+    
+<div id="main-container" class="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 relative overflow-hidden">
+    
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-br from-blue-200/30 to-purple-200/30 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-to-br from-pink-200/30 to-orange-200/30 rounded-full blur-3xl"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-br from-indigo-200/20 to-purple-200/20 rounded-full blur-3xl"></div>
+    </div>
+
+    <div id="hero-section" class="relative z-10 flex items-center justify-center min-h-screen px-4 py-8">
+        <div class="w-full max-w-xl">
+
+            <div id="brand-header" class="text-center mb-8 animate-fadeIn">
+                <div class="inline-flex items-center justify-center w-16 h-16 mb-4 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-2xl shadow-2xl transform hover:scale-105 transition-transform duration-300">
+                    <i class="fa-solid fa-clipboard-list text-white text-2xl"></i>
+                </div>
+                <h1 class="text-4xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+                    Requirement & Effort Tracker
+                </h1>
+                <p class="text-lg text-gray-600 font-medium">
+                    Your intelligent project planning companion
+                </p>
+            </div>
+
+            <div id="welcome-card" class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 mb-8 border border-white/50">
+
+                <div id="welcome-content" class="text-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">
+                        Let's Get Started
+                    </h2>
+                </div>
+
+                <div id="project-form" class="space-y-5">
+                    
+                    <div id="project-name-field" class="relative">
+                        <label for="projectName" class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                            <i class="fa-solid fa-tag text-indigo-500 mr-2"></i>
+                            Project Name
+                            <span class="text-red-500 ml-1">*</span>
+                        </label>
+                        <div class="relative group">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <i class="fa-solid fa-folder-open text-gray-400 group-focus-within:text-indigo-500 transition-colors duration-200"></i>
+                            </div>
+                            <input
+                                type="text"
+                                id="projectName"
+                                class="w-full pl-12 pr-4 py-3 text-base border-2 border-gray-200 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all duration-200 bg-white/50 backdrop-blur-sm"
+                                placeholder="Enter project name..."
+                                maxlength="100"
+                                autocomplete="off"
+                            />
+                            <div id="char-counter" class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                <span class="text-xs text-gray-400 font-medium">
+                                    <span id="current-length">0</span>/100
+                                </span>
+                            </div>
+                        </div>
+                        <div id="error-message" class="hidden mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-circle-exclamation text-red-500 mt-0.5 mr-2"></i>
+                                <span id="error-text" class="text-sm text-red-700 font-medium"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="submit-button-container" class="pt-2">
+                        <button
+                            id="createProjectBtn"
+                            class="w-full py-3 px-6 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 text-white font-semibold text-base rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 flex items-center justify-center space-x-3"
+                        >
+                            <span>Create Project</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+window.addEventListener('load', function() {
+    const projectNameInput = document.getElementById('projectName');
+    const createProjectBtn = document.getElementById('createProjectBtn');
+    const errorMessage = document.getElementById('error-message');
+    const errorText = document.getElementById('error-text');
+    const currentLength = document.getElementById('current-length');
+    
+    projectNameInput.addEventListener('input', function() {
+        const value = this.value;
+        currentLength.textContent = value.length;
+        
+        if (errorMessage.classList.contains('flex')) {
+            errorMessage.classList.remove('flex');
+            errorMessage.classList.add('hidden');
+        }
+        
+        if (value.length > 0) {
+            createProjectBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        } else {
+            createProjectBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+    });
+    
+    projectNameInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            createProjectBtn.click();
+        }
+    });
+    
+    createProjectBtn.addEventListener('click', function() {
+        const projectName = projectNameInput.value.trim();
+        
+        if (!projectName) {
+            showError('Project name is required');
+            projectNameInput.focus();
+            return;
+        }
+        
+        if (projectName.length > 100) {
+            showError('Project name cannot exceed 100 characters');
+            projectNameInput.focus();
+            return;
+        }
+        
+        if (/^\s+$/.test(projectNameInput.value)) {
+            showError('Project name cannot be empty');
+            projectNameInput.value = '';
+            projectNameInput.focus();
+            return;
+        }
+        
+        localStorage.setItem('projectName', projectName);
+        localStorage.setItem('projectCreated', 'true');
+        
+        createProjectBtn.innerHTML = '<i class="fa-solid fa-check mr-2"></i><span>Success! Redirecting...</span>';
+        createProjectBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+        
+        setTimeout(function() {
+            window.location.href = 'dashboard.html';
+        }, 1000);
+    });
+    
+    function showError(message) {
+        errorText.textContent = message;
+        errorMessage.classList.remove('hidden');
+        errorMessage.classList.add('flex');
+        
+        projectNameInput.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-100');
+        
+        setTimeout(function() {
+            projectNameInput.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-100');
+        }, 3000);
+    }
+    
+    const existingProject = localStorage.getItem('projectCreated');
+    if (existingProject === 'true') {
+        const savedName = localStorage.getItem('projectName');
+        if (savedName) {
+            projectNameInput.value = savedName;
+            currentLength.textContent = savedName.length;
+        }
+    }
+});
+</script>
+
+</body>
+</html>
