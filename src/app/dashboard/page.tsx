@@ -113,7 +113,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Sidebar - 4 cols */}
-          <div className="lg:col-span-4 space-y-6">
+          <div className="lg:col-span-4 space-y-6 lg:mt-11">
             <EffortSummary stats={stats} />
             <RequirementForm onSubmit={addRequirement} />
           </div>
