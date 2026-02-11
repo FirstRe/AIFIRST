@@ -1,38 +1,49 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/Card';
-import { Input } from '@/components/ui/Input';
-import { Button } from '@/components/ui/Button';
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Card, CardContent, CardHeader } from "@/components/ui/Card";
+import { Input } from "@/components/ui/Input";
+import { Button } from "@/components/ui/Button";
 
 interface RequirementFormProps {
-  onSubmit: (description: string, effort: number) => { isValid: boolean; error?: string };
+  onSubmit: (
+    description: string,
+    effort: number,
+  ) => Promise<{ isValid: boolean; error?: string }>;
 }
 
 export function RequirementForm({ onSubmit }: RequirementFormProps) {
-  const [description, setDescription] = useState('');
-  const [effort, setEffort] = useState('');
+  const { t } = useTranslation();
+  const [description, setDescription] = useState("");
+  const [effort, setEffort] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
     const effortValue = parseFloat(effort);
     if (isNaN(effortValue)) {
-      setError('Please enter a valid effort value');
+      setError(t("errors.invalidEffort"));
       return;
     }
 
-    const result = onSubmit(description, effortValue);
-    if (!result.isValid) {
-      setError(result.error || 'Failed to add requirement');
-      return;
-    }
+    setIsSubmitting(true);
+    try {
+      const result = await onSubmit(description, effortValue);
+      if (!result.isValid) {
+        setError(result.error || t("errors.failedToAdd"));
+        return;
+      }
 
-    // Reset form
-    setDescription('');
-    setEffort('');
+      // Reset form
+      setDescription("");
+      setEffort("");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -40,33 +51,33 @@ export function RequirementForm({ onSubmit }: RequirementFormProps) {
       <CardHeader>
         <h2 className="text-lg font-semibold text-white flex items-center gap-2">
           <i className="fas fa-plus-circle text-green-400"></i>
-          Add Requirement
+          {t("requirementForm.title")}
         </h2>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-white/90 mb-2">
-              Description
+              {t("requirementForm.description")}
             </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Enter requirement description..."
+              placeholder={t("requirementForm.descriptionPlaceholder")}
               rows={3}
               className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all duration-200 resize-none"
             />
           </div>
 
           <Input
-            label="Effort (man-days)"
+            label={t("requirementForm.effort")}
             type="number"
             step="0.01"
             min="0.01"
             max="9999"
             value={effort}
             onChange={(e) => setEffort(e.target.value)}
-            placeholder="e.g., 2.5"
+            placeholder={t("requirementForm.effortPlaceholder")}
           />
 
           {error && (
@@ -76,13 +87,21 @@ export function RequirementForm({ onSubmit }: RequirementFormProps) {
             </div>
           )}
 
-          <Button type="submit" className="w-full">
-            <i className="fas fa-plus mr-2"></i>
-            Add Requirement
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <>
+                <i className="fas fa-spinner fa-spin mr-2"></i>
+                {t("common.loading")}
+              </>
+            ) : (
+              <>
+                <i className="fas fa-plus mr-2"></i>
+                {t("requirementForm.addButton")}
+              </>
+            )}
           </Button>
         </form>
       </CardContent>
     </Card>
   );
 }
-

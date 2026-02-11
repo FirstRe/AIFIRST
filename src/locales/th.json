@@ -1,0 +1,97 @@
+{
+  "common": {
+    "appName": "ReqTrack",
+    "loading": "กำลังโหลด...",
+    "cancel": "ยกเลิก",
+    "delete": "ลบ",
+    "save": "บันทึก",
+    "edit": "แก้ไข",
+    "close": "ปิด",
+    "manDays": "แมนเดย์"
+  },
+  "header": {
+    "export": "ส่งออก",
+    "import": "นำเข้า",
+    "newProject": "โปรเจกต์ใหม่"
+  },
+  "setup": {
+    "tagline": "การติดตามความต้องการอย่างง่ายดาย",
+    "createNewProject": "สร้างโปรเจกต์ใหม่",
+    "projectName": "ชื่อโปรเจกต์",
+    "projectNamePlaceholder": "กรอกชื่อโปรเจกต์ของคุณ",
+    "getStarted": "เริ่มต้นใช้งาน",
+    "localStorageNote": "ข้อมูลของคุณถูกเก็บไว้ในเบราว์เซอร์",
+    "builtWith": "สร้างด้วย Next.js & Tailwind CSS"
+  },
+  "dashboard": {
+    "requirements": "ความต้องการ",
+    "footer": "ReqTrack - เครื่องมือติดตามความต้องการ"
+  },
+  "effortSummary": {
+    "title": "สรุปความพยายาม",
+    "totalActiveEffort": "ความพยายามที่ใช้งานทั้งหมด",
+    "total": "ทั้งหมด",
+    "active": "ใช้งาน",
+    "inactive": "ไม่ใช้งาน"
+  },
+  "requirementForm": {
+    "title": "เพิ่มความต้องการ",
+    "description": "รายละเอียด",
+    "descriptionPlaceholder": "กรอกรายละเอียดความต้องการ...",
+    "effort": "ความพยายาม (แมนเดย์)",
+    "effortPlaceholder": "เช่น 2.5",
+    "addButton": "เพิ่มความต้องการ"
+  },
+  "requirementsList": {
+    "id": "รหัส",
+    "description": "รายละเอียด",
+    "effort": "ความพยายาม",
+    "status": "สถานะ",
+    "actions": "การดำเนินการ"
+  },
+  "emptyState": {
+    "title": "ยังไม่มีความต้องการ",
+    "description": "เริ่มต้นโดยการเพิ่มความต้องการแรกของคุณโดยใช้แบบฟอร์มทางด้านขวา"
+  },
+  "modal": {
+    "deleteRequirement": "ลบความต้องการ",
+    "deleteConfirmation": "คุณแน่ใจหรือไม่ว่าต้องการลบความต้องการ #{{id}}? การดำเนินการนี้ไม่สามารถยกเลิกได้",
+    "createNewProject": "สร้างโปรเจกต์ใหม่",
+    "newProjectConfirmation": "การดำเนินการนี้จะลบความต้องการทั้งหมดและสร้างโปรเจกต์ใหม่ การดำเนินการนี้ไม่สามารถยกเลิกได้"
+  },
+  "status": {
+    "active": "ใช้งาน",
+    "inactive": "ไม่ใช้งาน"
+  },
+  "errors": {
+    "invalidEffort": "กรุณากรอกค่าความพยายามที่ถูกต้อง",
+    "failedToAdd": "ไม่สามารถเพิ่มความต้องการได้",
+    "failedToUpdate": "ไม่สามารถอัปเดตได้",
+    "failedToCreate": "ไม่สามารถสร้างโปรเจกต์ได้",
+    "invalidFileFormat": "รูปแบบไฟล์ไม่ถูกต้อง",
+    "errorReadingFile": "เกิดข้อผิดพลาดในการอ่านไฟล์",
+    "projectName": {
+      "required": "กรุณากรอกชื่อโปรเจกต์",
+      "maxLength": "ชื่อโปรเจกต์ต้องไม่เกิน 100 ตัวอักษร",
+      "empty": "ชื่อโปรเจกต์ต้องไม่ว่างเปล่า"
+    },
+    "description": {
+      "required": "กรุณากรอกรายละเอียดความต้องการ",
+      "maxLength": "รายละเอียดต้องไม่เกิน 500 ตัวอักษร",
+      "empty": "รายละเอียดความต้องการต้องไม่ว่างเปล่า"
+    },
+    "effort": {
+      "required": "กรุณากรอกค่าความพยายาม",
+      "invalid": "ความพยายามต้องเป็นตัวเลข",
+      "min": "ความพยายามต้องมากกว่าศูนย์",
+      "max": "ความพยายามต้องไม่เกิน 9999",
+      "decimal": "ความพยายามมีทศนิยมได้ไม่เกิน 2 ตำแหน่ง"
+    }
+  },
+  "language": {
+    "en": "English",
+    "th": "ไทย",
+    "toggle": "ภาษา"
+  }
+}
+

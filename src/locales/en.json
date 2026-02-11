@@ -1,0 +1,97 @@
+{
+  "common": {
+    "appName": "ReqTrack",
+    "loading": "Loading...",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "save": "Save",
+    "edit": "Edit",
+    "close": "Close",
+    "manDays": "man-days"
+  },
+  "header": {
+    "export": "Export",
+    "import": "Import",
+    "newProject": "New Project"
+  },
+  "setup": {
+    "tagline": "Requirements Tracking Made Simple",
+    "createNewProject": "Create New Project",
+    "projectName": "Project Name",
+    "projectNamePlaceholder": "Enter your project name",
+    "getStarted": "Get Started",
+    "localStorageNote": "Your data is stored locally in your browser",
+    "builtWith": "Built with Next.js & Tailwind CSS"
+  },
+  "dashboard": {
+    "requirements": "Requirements",
+    "footer": "ReqTrack - Requirements Tracking Tool"
+  },
+  "effortSummary": {
+    "title": "Effort Summary",
+    "totalActiveEffort": "Total Active Effort",
+    "total": "Total",
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "requirementForm": {
+    "title": "Add Requirement",
+    "description": "Description",
+    "descriptionPlaceholder": "Enter requirement description...",
+    "effort": "Effort (man-days)",
+    "effortPlaceholder": "e.g., 2.5",
+    "addButton": "Add Requirement"
+  },
+  "requirementsList": {
+    "id": "ID",
+    "description": "Description",
+    "effort": "Effort",
+    "status": "Status",
+    "actions": "Actions"
+  },
+  "emptyState": {
+    "title": "No Requirements Yet",
+    "description": "Get started by adding your first requirement using the form on the right."
+  },
+  "modal": {
+    "deleteRequirement": "Delete Requirement",
+    "deleteConfirmation": "Are you sure you want to delete requirement #{{id}}? This action cannot be undone.",
+    "createNewProject": "Create New Project",
+    "newProjectConfirmation": "This will delete all current requirements and create a new project. This action cannot be undone."
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "errors": {
+    "invalidEffort": "Please enter a valid effort value",
+    "failedToAdd": "Failed to add requirement",
+    "failedToUpdate": "Failed to update",
+    "failedToCreate": "Failed to create project",
+    "invalidFileFormat": "Invalid file format",
+    "errorReadingFile": "Error reading file",
+    "projectName": {
+      "required": "Project name is required",
+      "maxLength": "Project name cannot exceed 100 characters",
+      "empty": "Project name cannot be empty"
+    },
+    "description": {
+      "required": "Requirement description is required",
+      "maxLength": "Description cannot exceed 500 characters",
+      "empty": "Requirement description cannot be empty"
+    },
+    "effort": {
+      "required": "Effort value is required",
+      "invalid": "Effort must be a number",
+      "min": "Effort must be greater than zero",
+      "max": "Effort cannot exceed 9999",
+      "decimal": "Effort can have at most 2 decimal places"
+    }
+  },
+  "language": {
+    "en": "English",
+    "th": "ไทย",
+    "toggle": "Language"
+  }
+}
+

@@ -4,13 +4,19 @@
  */
 
 /**
- * localStorage key names
+ * localStorage key names (limited to language preference only after PostgreSQL migration)
  */
 export const STORAGE_KEYS = {
-  PROJECT: 'ret_project',
-  REQUIREMENTS: 'ret_requirements',
-  PREFERENCES: 'ret_preferences',
-  SCHEMA_VERSION: 'ret_schema_version',
+  LANGUAGE: "ret_language",
+} as const;
+
+/**
+ * API endpoint paths
+ */
+export const API_ENDPOINTS = {
+  PROJECT: "/api/project",
+  REQUIREMENTS: "/api/requirements",
+  HEALTH: "/api/health",
 } as const;
 
 /**
@@ -46,9 +52,9 @@ export const DEFAULTS = {
  * Route paths
  */
 export const ROUTES = {
-  HOME: '/',
-  SETUP: '/setup',
-  DASHBOARD: '/dashboard',
+  HOME: "/",
+  SETUP: "/setup",
+  DASHBOARD: "/dashboard",
 } as const;
 
 /**
@@ -56,25 +62,24 @@ export const ROUTES = {
  */
 export const ERROR_MESSAGES = {
   PROJECT_NAME: {
-    REQUIRED: 'Project name is required',
-    MAX_LENGTH: 'Project name cannot exceed 100 characters',
-    EMPTY: 'Project name cannot be empty',
+    REQUIRED: "Project name is required",
+    MAX_LENGTH: "Project name cannot exceed 100 characters",
+    EMPTY: "Project name cannot be empty",
   },
   DESCRIPTION: {
-    REQUIRED: 'Requirement description is required',
-    MAX_LENGTH: 'Description cannot exceed 500 characters',
-    EMPTY: 'Requirement description cannot be empty',
+    REQUIRED: "Requirement description is required",
+    MAX_LENGTH: "Description cannot exceed 500 characters",
+    EMPTY: "Requirement description cannot be empty",
   },
   EFFORT: {
-    REQUIRED: 'Effort value is required',
-    INVALID: 'Effort must be a number',
-    MIN: 'Effort must be greater than zero',
-    MAX: 'Effort cannot exceed 9999',
-    DECIMAL: 'Effort can have at most 2 decimal places',
+    REQUIRED: "Effort value is required",
+    INVALID: "Effort must be a number",
+    MIN: "Effort must be greater than zero",
+    MAX: "Effort cannot exceed 9999",
+    DECIMAL: "Effort can have at most 2 decimal places",
   },
   IMPORT: {
-    INVALID_FORMAT: 'Invalid file format',
-    READ_ERROR: 'Error reading file',
+    INVALID_FORMAT: "Invalid file format",
+    READ_ERROR: "Error reading file",
   },
 } as const;
-

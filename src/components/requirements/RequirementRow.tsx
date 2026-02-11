@@ -1,46 +1,66 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Toggle } from '@/components/ui/Toggle';
-import { Button } from '@/components/ui/Button';
-import { Modal } from '@/components/ui/Modal';
-import { Input } from '@/components/ui/Input';
-import { formatEffort } from '@/lib/format';
-import type { Requirement } from '@/types';
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Toggle } from "@/components/ui/Toggle";
+import { Button } from "@/components/ui/Button";
+import { Modal } from "@/components/ui/Modal";
+import { Input } from "@/components/ui/Input";
+import { formatEffort } from "@/lib/format";
+import type { Requirement } from "@/types";
 
 interface RequirementRowProps {
   requirement: Requirement;
-  onToggle: (id: number) => void;
-  onUpdate: (id: number, updates: { description?: string; effort?: number }) => { isValid: boolean; error?: string };
-  onDelete: (id: number) => void;
+  onToggle: (id: number) => Promise<void>;
+  onUpdate: (
+    id: number,
+    updates: { description?: string; effort?: number },
+  ) => Promise<{ isValid: boolean; error?: string }>;
+  onDelete: (id: number) => Promise<void>;
 }
 
-export function RequirementRow({ requirement, onToggle, onUpdate, onDelete }: RequirementRowProps) {
+export function RequirementRow({
+  requirement,
+  onToggle,
+  onUpdate,
+  onDelete,
+}: RequirementRowProps) {
+  const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [editDescription, setEditDescription] = useState(requirement.description);
+  const [editDescription, setEditDescription] = useState(
+    requirement.description,
+  );
   const [editEffort, setEditEffort] = useState(String(requirement.effort));
   const [error, setError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isToggling, setIsToggling] = useState(false);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setError(null);
     const effortValue = parseFloat(editEffort);
     if (isNaN(effortValue)) {
-      setError('Please enter a valid effort value');
+      setError(t("errors.invalidEffort"));
       return;
     }
 
-    const result = onUpdate(requirement.id, {
-      description: editDescription,
-      effort: effortValue,
-    });
+    setIsSaving(true);
+    try {
+      const result = await onUpdate(requirement.id, {
+        description: editDescription,
+        effort: effortValue,
+      });
 
-    if (!result.isValid) {
-      setError(result.error || 'Failed to update');
-      return;
+      if (!result.isValid) {
+        setError(result.error || t("errors.failedToUpdate"));
+        return;
+      }
+
+      setIsEditing(false);
+    } finally {
+      setIsSaving(false);
     }
-
-    setIsEditing(false);
   };
 
   const handleCancel = () => {
@@ -50,14 +70,30 @@ export function RequirementRow({ requirement, onToggle, onUpdate, onDelete }: Re
     setIsEditing(false);
   };
 
-  const handleDelete = () => {
-    onDelete(requirement.id);
-    setShowDeleteConfirm(false);
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await onDelete(requirement.id);
+      setShowDeleteConfirm(false);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleToggle = async () => {
+    setIsToggling(true);
+    try {
+      await onToggle(requirement.id);
+    } finally {
+      setIsToggling(false);
+    }
   };
 
   return (
     <>
-      <tr className={`border-b border-white/10 hover:bg-white/5 transition-colors ${!requirement.isActive ? 'opacity-50' : ''}`}>
+      <tr
+        className={`border-b border-white/10 hover:bg-white/5 transition-colors ${!requirement.isActive ? "opacity-50" : ""}`}
+      >
         {/* ID */}
         <td className="px-4 py-4 text-center">
           <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-purple-500/20 text-purple-300 font-medium text-sm">
@@ -75,7 +111,9 @@ export function RequirementRow({ requirement, onToggle, onUpdate, onDelete }: Re
               rows={2}
             />
           ) : (
-            <span className={`text-white/90 ${!requirement.isActive ? 'line-through' : ''}`}>
+            <span
+              className={`text-white/90 ${!requirement.isActive ? "line-through" : ""}`}
+            >
               {requirement.description}
             </span>
           )}
@@ -93,7 +131,9 @@ export function RequirementRow({ requirement, onToggle, onUpdate, onDelete }: Re
               className="w-24 text-center text-sm"
             />
           ) : (
-            <span className="text-white/90">{formatEffort(requirement.effort)}</span>
+            <span className="text-white/90">
+              {formatEffort(requirement.effort)}
+            </span>
           )}
         </td>
 
@@ -101,8 +141,11 @@ export function RequirementRow({ requirement, onToggle, onUpdate, onDelete }: Re
         <td className="px-4 py-4 text-center">
           <Toggle
             checked={requirement.isActive}
-            onChange={() => onToggle(requirement.id)}
-            label={requirement.isActive ? 'Active' : 'Inactive'}
+            onChange={handleToggle}
+            disabled={isToggling}
+            label={
+              requirement.isActive ? t("status.active") : t("status.inactive")
+            }
           />
         </td>
 
@@ -111,19 +154,41 @@ export function RequirementRow({ requirement, onToggle, onUpdate, onDelete }: Re
           <div className="flex items-center justify-center gap-2">
             {isEditing ? (
               <>
-                <Button variant="primary" size="sm" onClick={handleSave}>
-                  <i className="fas fa-check"></i>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={handleSave}
+                  disabled={isSaving}
+                >
+                  {isSaving ? (
+                    <i className="fas fa-spinner fa-spin"></i>
+                  ) : (
+                    <i className="fas fa-check"></i>
+                  )}
                 </Button>
-                <Button variant="ghost" size="sm" onClick={handleCancel}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleCancel}
+                  disabled={isSaving}
+                >
                   <i className="fas fa-times"></i>
                 </Button>
               </>
             ) : (
               <>
-                <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsEditing(true)}
+                >
                   <i className="fas fa-edit"></i>
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => setShowDeleteConfirm(true)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowDeleteConfirm(true)}
+                >
                   <i className="fas fa-trash text-red-400"></i>
                 </Button>
               </>
@@ -148,21 +213,31 @@ export function RequirementRow({ requirement, onToggle, onUpdate, onDelete }: Re
       <Modal
         isOpen={showDeleteConfirm}
         onClose={() => setShowDeleteConfirm(false)}
-        title="Delete Requirement"
+        title={t("modal.deleteRequirement")}
       >
         <p className="text-white/80 mb-6">
-          Are you sure you want to delete requirement #{requirement.id}? This action cannot be undone.
+          {t("modal.deleteConfirmation", { id: requirement.id })}
         </p>
         <div className="flex gap-3 justify-end">
-          <Button variant="ghost" onClick={() => setShowDeleteConfirm(false)}>
-            Cancel
+          <Button
+            variant="ghost"
+            onClick={() => setShowDeleteConfirm(false)}
+            disabled={isDeleting}
+          >
+            {t("common.cancel")}
           </Button>
-          <Button variant="danger" onClick={handleDelete}>
-            Delete
+          <Button variant="danger" onClick={handleDelete} disabled={isDeleting}>
+            {isDeleting ? (
+              <>
+                <i className="fas fa-spinner fa-spin mr-2"></i>
+                {t("common.loading")}
+              </>
+            ) : (
+              t("common.delete")
+            )}
           </Button>
         </div>
       </Modal>
     </>
   );
 }
-

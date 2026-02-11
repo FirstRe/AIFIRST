@@ -1,10 +1,17 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Noto_Sans_Thai } from "next/font/google";
 import "./globals.css";
+import { I18nProvider } from "@/components/providers/I18nProvider";
 
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
+});
+
+const notoSansThai = Noto_Sans_Thai({
+  variable: "--font-noto-sans-thai",
+  subsets: ["thai", "latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -32,8 +39,10 @@ export default function RootLayout({
           referrerPolicy="no-referrer"
         />
       </head>
-      <body className={`${inter.variable} font-sans antialiased`}>
-        {children}
+      <body
+        className={`${inter.variable} ${notoSansThai.variable} font-sans antialiased`}
+      >
+        <I18nProvider>{children}</I18nProvider>
       </body>
     </html>
   );

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { storageService } from "@/lib/storage";
+import { projectApi } from "@/lib/api";
 import { ROUTES } from "@/lib/constants";
 
 export default function Home() {
@@ -10,14 +10,23 @@ export default function Home() {
   const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
-    // Check if a project exists and redirect accordingly
-    const hasProject = storageService.hasExistingProject();
-    if (hasProject) {
-      router.replace(ROUTES.DASHBOARD);
-    } else {
-      router.replace(ROUTES.SETUP);
-    }
-    setIsChecking(false);
+    // Check if a project exists via API and redirect accordingly
+    const checkProject = async () => {
+      try {
+        const project = await projectApi.get();
+        if (project) {
+          router.replace(ROUTES.DASHBOARD);
+        } else {
+          router.replace(ROUTES.SETUP);
+        }
+      } catch {
+        // If API fails, redirect to setup
+        router.replace(ROUTES.SETUP);
+      }
+      setIsChecking(false);
+    };
+
+    checkProject();
   }, [router]);
 
   // Show loading state while checking

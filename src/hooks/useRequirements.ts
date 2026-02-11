@@ -1,38 +1,72 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { storageService } from '@/lib/storage';
-import { validateDescription, validateEffort, validateImportData } from '@/lib/validation';
-import { normalizeEffort } from '@/lib/format';
-import type { Requirement, RequirementStats, ExportData, ValidationResult } from '@/types';
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { requirementsApi, projectApi } from "@/lib/api";
+import {
+  validateDescription,
+  validateEffort,
+  validateImportData,
+} from "@/lib/validation";
+import { normalizeEffort } from "@/lib/format";
+import type {
+  Project,
+  Requirement,
+  RequirementStats,
+  ExportData,
+  ValidationResult,
+} from "@/types";
 
 export interface UseRequirementsReturn {
   requirements: Requirement[];
   isLoading: boolean;
+  error: string | null;
   stats: RequirementStats;
-  addRequirement: (description: string, effort: number) => ValidationResult;
-  updateRequirement: (id: number, updates: Partial<Pick<Requirement, 'description' | 'effort'>>) => ValidationResult;
-  deleteRequirement: (id: number) => void;
-  toggleStatus: (id: number) => void;
-  exportData: () => ExportData | null;
-  importData: (data: ExportData) => ValidationResult;
+  addRequirement: (
+    description: string,
+    effort: number,
+  ) => Promise<ValidationResult>;
+  updateRequirement: (
+    id: number,
+    updates: Partial<Pick<Requirement, "description" | "effort">>,
+  ) => Promise<ValidationResult>;
+  deleteRequirement: (id: number) => Promise<void>;
+  toggleStatus: (id: number) => Promise<void>;
+  exportData: (project: Project | null) => ExportData | null;
+  importData: (data: ExportData) => Promise<ValidationResult>;
+  refetch: () => Promise<void>;
 }
 
 export function useRequirements(): UseRequirementsReturn {
   const [requirements, setRequirements] = useState<Requirement[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch requirements from API
+  const fetchRequirements = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const data = await requirementsApi.getAll();
+      setRequirements(data);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to fetch requirements",
+      );
+      setRequirements([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   // Load requirements on mount
   useEffect(() => {
-    const savedRequirements = storageService.getRequirements();
-    setRequirements(savedRequirements);
-    setIsLoading(false);
-  }, []);
+    fetchRequirements();
+  }, [fetchRequirements]);
 
   // Compute statistics
   const stats = useMemo((): RequirementStats => {
-    const active = requirements.filter(r => r.isActive);
-    const inactive = requirements.filter(r => !r.isActive);
+    const active = requirements.filter((r) => r.isActive);
+    const inactive = requirements.filter((r) => !r.isActive);
     const totalActiveEffort = active.reduce((sum, r) => sum + r.effort, 0);
 
     return {
@@ -43,148 +77,165 @@ export function useRequirements(): UseRequirementsReturn {
     };
   }, [requirements]);
 
-  const addRequirement = useCallback((description: string, effort: number): ValidationResult => {
-    const descValidation = validateDescription(description);
-    if (!descValidation.isValid) return descValidation;
+  const addRequirement = useCallback(
+    async (description: string, effort: number): Promise<ValidationResult> => {
+      // Client-side validation first
+      const descValidation = validateDescription(description);
+      if (!descValidation.isValid) return descValidation;
 
-    const effortValidation = validateEffort(effort);
-    if (!effortValidation.isValid) return effortValidation;
+      const effortValidation = validateEffort(effort);
+      if (!effortValidation.isValid) return effortValidation;
 
-    const project = storageService.getProject();
-    if (!project) return { isValid: false, error: 'No project exists' };
+      try {
+        setError(null);
+        const newRequirement = await requirementsApi.create({
+          description: description.trim(),
+          effort: normalizeEffort(effort),
+        });
+        setRequirements((prev) => [...prev, newRequirement]);
+        return { isValid: true };
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to add requirement";
+        setError(errorMessage);
+        return { isValid: false, error: errorMessage };
+      }
+    },
+    [],
+  );
 
-    const newRequirement: Requirement = {
-      id: project.nextRequirementId,
-      description: description.trim(),
-      effort: normalizeEffort(effort),
-      isActive: true,
-      createdAt: new Date().toISOString(),
-    };
+  const updateRequirement = useCallback(
+    async (
+      id: number,
+      updates: Partial<Pick<Requirement, "description" | "effort">>,
+    ): Promise<ValidationResult> => {
+      // Client-side validation first
+      if (updates.description !== undefined) {
+        const validation = validateDescription(updates.description);
+        if (!validation.isValid) return validation;
+      }
 
-    // Update project's nextRequirementId
-    storageService.saveProject({
-      ...project,
-      nextRequirementId: project.nextRequirementId + 1,
-      updatedAt: new Date().toISOString(),
-    });
+      if (updates.effort !== undefined) {
+        const validation = validateEffort(updates.effort);
+        if (!validation.isValid) return validation;
+      }
 
-    const updatedRequirements = [...storageService.getRequirements(), newRequirement];
-    storageService.saveRequirements(updatedRequirements);
-    setRequirements(updatedRequirements);
+      try {
+        setError(null);
+        const updatedRequirement = await requirementsApi.update(id, {
+          ...(updates.description !== undefined && {
+            description: updates.description.trim(),
+          }),
+          ...(updates.effort !== undefined && {
+            effort: normalizeEffort(updates.effort),
+          }),
+        });
+        setRequirements((prev) =>
+          prev.map((r) => (r.id === id ? updatedRequirement : r)),
+        );
+        return { isValid: true };
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to update requirement";
+        setError(errorMessage);
+        return { isValid: false, error: errorMessage };
+      }
+    },
+    [],
+  );
 
-    return { isValid: true };
+  const deleteRequirement = useCallback(async (id: number): Promise<void> => {
+    try {
+      setError(null);
+      await requirementsApi.delete(id);
+      setRequirements((prev) => prev.filter((r) => r.id !== id));
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to delete requirement";
+      setError(errorMessage);
+      throw err;
+    }
   }, []);
 
-  const updateRequirement = useCallback((
-    id: number,
-    updates: Partial<Pick<Requirement, 'description' | 'effort'>>
-  ): ValidationResult => {
-    if (updates.description !== undefined) {
-      const validation = validateDescription(updates.description);
+  const toggleStatus = useCallback(async (id: number): Promise<void> => {
+    try {
+      setError(null);
+      const updatedRequirement = await requirementsApi.toggle(id);
+      setRequirements((prev) =>
+        prev.map((r) => (r.id === id ? updatedRequirement : r)),
+      );
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to toggle status";
+      setError(errorMessage);
+      throw err;
+    }
+  }, []);
+
+  const exportData = useCallback(
+    (project: Project | null): ExportData | null => {
+      if (!project) return null;
+
+      return {
+        projectName: project.name,
+        requirements: requirements.map(
+          ({ id, description, effort, isActive, createdAt }) => ({
+            id,
+            description,
+            effort,
+            isActive,
+            createdAt,
+          }),
+        ),
+        exportDate: new Date().toISOString(),
+      };
+    },
+    [requirements],
+  );
+
+  const importData = useCallback(
+    async (data: ExportData): Promise<ValidationResult> => {
+      const validation = validateImportData(data);
       if (!validation.isValid) return validation;
-    }
 
-    if (updates.effort !== undefined) {
-      const validation = validateEffort(updates.effort);
-      if (!validation.isValid) return validation;
-    }
+      try {
+        setError(null);
 
-    const currentRequirements = storageService.getRequirements();
-    const index = currentRequirements.findIndex(r => r.id === id);
-    if (index === -1) return { isValid: false, error: 'Requirement not found' };
+        // Create new project (this deletes existing project and requirements)
+        await projectApi.create({ name: data.projectName });
 
-    currentRequirements[index] = {
-      ...currentRequirements[index],
-      ...(updates.description !== undefined && { description: updates.description.trim() }),
-      ...(updates.effort !== undefined && { effort: normalizeEffort(updates.effort) }),
-    };
+        // Import requirements one by one
+        const importedRequirements: Requirement[] = [];
+        for (const req of data.requirements) {
+          const newReq = await requirementsApi.create({
+            description: req.description,
+            effort: normalizeEffort(req.effort),
+          });
+          // If original was inactive, toggle it
+          if (req.isActive === false) {
+            const toggled = await requirementsApi.toggle(newReq.id);
+            importedRequirements.push(toggled);
+          } else {
+            importedRequirements.push(newReq);
+          }
+        }
 
-    storageService.saveRequirements(currentRequirements);
-    setRequirements([...currentRequirements]);
-
-    // Update project timestamp
-    const project = storageService.getProject();
-    if (project) {
-      storageService.saveProject({ ...project, updatedAt: new Date().toISOString() });
-    }
-
-    return { isValid: true };
-  }, []);
-
-  const deleteRequirement = useCallback((id: number): void => {
-    const currentRequirements = storageService.getRequirements();
-    const filtered = currentRequirements.filter(r => r.id !== id);
-    storageService.saveRequirements(filtered);
-    setRequirements(filtered);
-
-    const project = storageService.getProject();
-    if (project) {
-      storageService.saveProject({ ...project, updatedAt: new Date().toISOString() });
-    }
-  }, []);
-
-  const toggleStatus = useCallback((id: number): void => {
-    const currentRequirements = storageService.getRequirements();
-    const index = currentRequirements.findIndex(r => r.id === id);
-    if (index === -1) return;
-
-    currentRequirements[index] = {
-      ...currentRequirements[index],
-      isActive: !currentRequirements[index].isActive,
-    };
-
-    storageService.saveRequirements(currentRequirements);
-    setRequirements([...currentRequirements]);
-
-    const project = storageService.getProject();
-    if (project) {
-      storageService.saveProject({ ...project, updatedAt: new Date().toISOString() });
-    }
-  }, []);
-
-  const exportData = useCallback((): ExportData | null => {
-    const project = storageService.getProject();
-    if (!project) return null;
-
-    return {
-      projectName: project.name,
-      requirements: storageService.getRequirements(),
-      exportDate: new Date().toISOString(),
-    };
-  }, []);
-
-  const importData = useCallback((data: ExportData): ValidationResult => {
-    const validation = validateImportData(data);
-    if (!validation.isValid) return validation;
-
-    // Clear existing and import new data
-    storageService.clearAllData();
-    storageService.initializeNewProject(data.projectName);
-
-    // Get the newly created project to track IDs
-    const project = storageService.getProject();
-    if (!project) return { isValid: false, error: 'Failed to initialize project' };
-
-    // Reassign IDs to imported requirements
-    let nextId = 1;
-    const importedRequirements: Requirement[] = data.requirements.map(req => ({
-      id: nextId++,
-      description: req.description,
-      effort: normalizeEffort(req.effort),
-      isActive: req.isActive ?? true,
-      createdAt: req.createdAt || new Date().toISOString(),
-    }));
-
-    storageService.saveRequirements(importedRequirements);
-    storageService.saveProject({ ...project, nextRequirementId: nextId });
-    setRequirements(importedRequirements);
-
-    return { isValid: true };
-  }, []);
+        setRequirements(importedRequirements);
+        return { isValid: true };
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to import data";
+        setError(errorMessage);
+        return { isValid: false, error: errorMessage };
+      }
+    },
+    [],
+  );
 
   return {
     requirements,
     isLoading,
+    error,
     stats,
     addRequirement,
     updateRequirement,
@@ -192,6 +243,6 @@ export function useRequirements(): UseRequirementsReturn {
     toggleStatus,
     exportData,
     importData,
+    refetch: fetchRequirements,
   };
 }
-

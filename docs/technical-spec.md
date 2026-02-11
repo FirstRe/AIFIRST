@@ -4,11 +4,12 @@
 
 ### Document Information
 
-- **Version**: 1.0
+- **Version**: 2.0
 - **Last Updated**: 2026-02-11
 - **Status**: Draft
 - **Related Documents**:
   - [Functional Requirements](./requirement.md)
+  - [PostgreSQL Migration Requirements](./requirement-2.md)
   - [Data Schema](./data-schema.md)
   - [Architecture](./architecture.md)
 
@@ -31,7 +32,7 @@
 
 ### 1.1 Project Summary
 
-The Requirement & Effort Tracker is a lightweight, browser-based web application that enables users to:
+The Requirement & Effort Tracker is a lightweight web application that enables users to:
 
 - Create and manage project requirements
 - Assign effort values to each requirement
@@ -42,23 +43,46 @@ The Requirement & Effort Tracker is a lightweight, browser-based web application
 **Key Characteristics:**
 
 - **No Authentication**: Open access without login requirements
-- **Client-Side Only**: All data stored in browser's localStorage
-- **Single-Project Mode**: One project at a time per browser
-- **Auto-Save**: All changes automatically persisted
+- **Client-Server Architecture**: Frontend communicates with backend API; data stored in PostgreSQL database
+- **Single-Project Mode**: One project at a time per database instance
+- **Auto-Save**: All changes automatically persisted to database via API
+- **Server-Side Persistence**: Data survives browser clearing and is accessible from any device
 
 ### 1.2 Technology Stack
 
-| Category            | Technology           | Version | Purpose                         |
-| ------------------- | -------------------- | ------- | ------------------------------- |
-| **Framework**       | Next.js              | 15.5.x  | React framework with App Router |
-| **UI Library**      | React                | 19.1.x  | Component-based UI              |
-| **Language**        | TypeScript           | 5.x     | Type-safe JavaScript            |
-| **Styling**         | Tailwind CSS         | 4.x     | Utility-first CSS               |
-| **Build Tool**      | Turbopack            | -       | Fast bundler for Next.js        |
-| **Icons**           | Font Awesome         | 6.4.0   | Icon library                    |
-| **Fonts**           | Inter (Google Fonts) | -       | Primary typeface                |
-| **Data Storage**    | localStorage API     | -       | Browser-based persistence       |
-| **Package Manager** | npm                  | -       | Dependency management           |
+#### Frontend
+
+| Category           | Technology                       | Version | Purpose                           |
+| ------------------ | -------------------------------- | ------- | --------------------------------- |
+| **Framework**      | Next.js                          | 15.5.x  | React framework with App Router   |
+| **UI Library**     | React                            | 19.1.x  | Component-based UI                |
+| **Language**       | TypeScript                       | 5.x     | Type-safe JavaScript              |
+| **Styling**        | Tailwind CSS                     | 4.x     | Utility-first CSS                 |
+| **Build Tool**     | Turbopack                        | -       | Fast bundler for Next.js          |
+| **Icons**          | Font Awesome                     | 6.4.0   | Icon library                      |
+| **Fonts**          | Inter (Google Fonts)             | -       | Primary typeface (English)        |
+| **Fonts**          | Noto Sans Thai (Google Fonts)    | -       | Thai language typeface            |
+| **i18n Framework** | i18next                          | -       | Internationalization core library |
+| **i18n React**     | react-i18next                    | -       | React bindings for i18next        |
+| **i18n Detection** | i18next-browser-languagedetector | -       | Automatic language detection      |
+| **HTTP Client**    | fetch API                        | -       | Built-in browser API for HTTP     |
+
+#### Backend & Database
+
+| Category            | Technology  | Version | Purpose                             |
+| ------------------- | ----------- | ------- | ----------------------------------- |
+| **API Framework**   | Next.js API | 15.5.x  | API Routes (App Router)             |
+| **Database**        | PostgreSQL  | 16.x    | Relational database for persistence |
+| **ORM**             | Prisma      | 6.x     | Type-safe database client           |
+| **Package Manager** | npm         | -       | Dependency management               |
+
+#### Database Driver Stack
+
+| Component              | Technology        | Purpose                          |
+| ---------------------- | ----------------- | -------------------------------- |
+| **Prisma Client**      | @prisma/client    | Type-safe database queries       |
+| **Prisma CLI**         | prisma            | Schema management and migrations |
+| **PostgreSQL Adapter** | Built into Prisma | PostgreSQL protocol support      |
 
 ### 1.3 Development Environment Setup
 
@@ -67,11 +91,13 @@ The Requirement & Effort Tracker is a lightweight, browser-based web application
 - Node.js 20.x LTS or higher
 - npm 10.x or higher
 - Git 2.x or higher
+- PostgreSQL 16.x or higher
 - VS Code (recommended) with extensions:
   - ESLint
   - Prettier
   - Tailwind CSS IntelliSense
   - TypeScript and JavaScript Language Features
+  - Prisma (for schema syntax highlighting)
 
 #### Installation Steps
 
@@ -83,25 +109,97 @@ cd web-starter-kit
 # 2. Install dependencies
 npm install
 
-# 3. Start development server
+# 3. Set up environment variables
+cp .env.example .env
+# Edit .env with your PostgreSQL connection string
+
+# 4. Initialize the database
+npm run db:push       # Push schema to database
+# Or for development with migrations:
+npm run db:migrate    # Create and apply migrations
+
+# 5. (Optional) Generate Prisma Client
+npm run db:generate   # Usually runs automatically after install
+
+# 6. Start development server
 npm run dev
 
-# 4. Open in browser
+# 7. Open in browser
 # Navigate to http://localhost:3000
+```
+
+#### PostgreSQL Setup
+
+**Option 1: Local Installation**
+
+```bash
+# macOS (Homebrew)
+brew install postgresql@16
+brew services start postgresql@16
+
+# Create database
+createdb ret_tracker
+
+# Verify connection
+psql -d ret_tracker -c "SELECT version();"
+```
+
+**Option 2: Docker**
+
+```bash
+# Run PostgreSQL in Docker
+docker run --name ret-postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_DB=ret_tracker \
+  -p 5432:5432 \
+  -d postgres:16
+
+# Connection string for .env
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/ret_tracker"
 ```
 
 #### Available Scripts
 
-| Script  | Command         | Description                     |
-| ------- | --------------- | ------------------------------- |
-| `dev`   | `npm run dev`   | Start dev server with Turbopack |
-| `build` | `npm run build` | Create production build         |
-| `start` | `npm run start` | Start production server         |
-| `lint`  | `npm run lint`  | Run ESLint for code quality     |
+| Script        | Command                | Description                       |
+| ------------- | ---------------------- | --------------------------------- |
+| `dev`         | `npm run dev`          | Start dev server with Turbopack   |
+| `build`       | `npm run build`        | Create production build           |
+| `start`       | `npm run start`        | Start production server           |
+| `lint`        | `npm run lint`         | Run ESLint for code quality       |
+| `db:generate` | `prisma generate`      | Generate Prisma Client            |
+| `db:push`     | `prisma db push`       | Push schema changes to database   |
+| `db:migrate`  | `prisma migrate dev`   | Create and apply migrations       |
+| `db:studio`   | `prisma studio`        | Open Prisma Studio (database GUI) |
+| `db:seed`     | `prisma db seed`       | Seed database with initial data   |
+| `db:reset`    | `prisma migrate reset` | Reset database (dev only)         |
 
 #### Environment Configuration
 
-No environment variables are required for basic operation. The application runs entirely client-side.
+Create a `.env` file in the project root (copy from `.env.example`):
+
+```bash
+# .env.example
+
+# Database Connection
+# Format: postgresql://USER:PASSWORD@HOST:PORT/DATABASE
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/ret_tracker"
+
+# Application Settings
+NODE_ENV="development"
+PORT=3000
+
+# Optional: Enable Prisma query logging
+# PRISMA_LOG="query,info,warn,error"
+```
+
+**Environment Variables Reference:**
+
+| Variable       | Required | Default       | Description                               |
+| -------------- | -------- | ------------- | ----------------------------------------- |
+| `DATABASE_URL` | Yes      | -             | PostgreSQL connection string              |
+| `NODE_ENV`     | No       | `development` | Environment (development/production/test) |
+| `PORT`         | No       | `3000`        | Application port                          |
+| `PRISMA_LOG`   | No       | -             | Prisma logging levels                     |
 
 For production deployment, see [Architecture Document](./architecture.md).
 
@@ -115,21 +213,44 @@ For production deployment, see [Architecture Document](./architecture.md).
 web-starter-kit/
 ├── docs/                          # Documentation
 │   ├── requirement.md             # Functional requirements
+│   ├── requirement-2.md           # PostgreSQL migration requirements
 │   ├── data-schema.md             # Data schema design
 │   ├── architecture.md            # AWS architecture
 │   └── technical-spec.md          # This document
+├── prisma/                        # Prisma ORM
+│   ├── schema.prisma              # Database schema definition
+│   ├── migrations/                # Database migrations
+│   │   └── YYYYMMDDHHMMSS_*/      # Timestamped migration folders
+│   └── seed.ts                    # Database seeding script
 ├── public/                        # Static assets
 │   ├── favicon.ico                # App favicon
 │   └── *.svg                      # Static images
 ├── src/                           # Source code
-│   └── app/                       # Next.js App Router
-│       ├── layout.tsx             # Root layout
-│       ├── page.tsx               # Home page (entry point)
-│       └── globals.css            # Global styles
+│   ├── app/                       # Next.js App Router
+│   │   ├── api/                   # API Routes (backend)
+│   │   │   ├── project/           # Project endpoints
+│   │   │   │   └── route.ts       # GET, POST, PUT, DELETE
+│   │   │   ├── requirements/      # Requirements endpoints
+│   │   │   │   ├── route.ts       # GET (all), POST
+│   │   │   │   └── [id]/          # Single requirement
+│   │   │   │       └── route.ts   # GET, PUT, DELETE
+│   │   │   └── health/            # Health check endpoint
+│   │   │       └── route.ts       # GET
+│   │   ├── layout.tsx             # Root layout
+│   │   ├── page.tsx               # Home page (entry point)
+│   │   └── globals.css            # Global styles
+│   ├── lib/                       # Utility libraries
+│   │   ├── db.ts                  # Prisma client singleton
+│   │   └── i18n/                  # Internationalization
+│   │       └── config.ts          # i18next configuration
+│   └── locales/                   # Translation files
+│       ├── en.json                # English translations
+│       └── th.json                # Thai translations
 ├── tests/                         # Test files
 ├── ui-prototype/                  # UI/UX team prototypes (reference)
 │   ├── project-setup.html         # Project setup screen
 │   └── dashboard.html             # Dashboard screen
+├── .env.example                   # Environment variables template
 ├── .eslintrc.json                 # ESLint configuration
 ├── next.config.ts                 # Next.js configuration
 ├── package.json                   # Dependencies & scripts
@@ -144,7 +265,18 @@ The following structure is recommended for implementing the application:
 
 ```
 src/
-├── app/                           # Next.js App Router pages
+├── app/                           # Next.js App Router
+│   ├── api/                       # API Routes (Backend)
+│   │   ├── project/
+│   │   │   └── route.ts           # Project CRUD endpoints
+│   │   ├── requirements/
+│   │   │   ├── route.ts           # Requirements list & create
+│   │   │   └── [id]/
+│   │   │       └── route.ts       # Single requirement CRUD
+│   │   ├── preferences/
+│   │   │   └── route.ts           # User preferences endpoints
+│   │   └── health/
+│   │       └── route.ts           # Health check endpoint
 │   ├── layout.tsx                 # Root layout (metadata, fonts)
 │   ├── page.tsx                   # Entry point → redirects based on state
 │   ├── setup/
@@ -164,36 +296,52 @@ src/
 │   ├── project/                   # Project-related components
 │   │   ├── ProjectNameInput.tsx
 │   │   └── ProjectNameDisplay.tsx
-│   └── requirements/              # Requirements-related components
-│       ├── RequirementsList.tsx
-│       ├── RequirementRow.tsx
-│       ├── RequirementForm.tsx
-│       ├── EffortSummary.tsx
-│       └── EmptyState.tsx
+│   ├── requirements/              # Requirements-related components
+│   │   ├── RequirementsList.tsx
+│   │   ├── RequirementRow.tsx
+│   │   ├── RequirementForm.tsx
+│   │   ├── EffortSummary.tsx
+│   │   └── EmptyState.tsx
+│   └── providers/
+│       └── I18nProvider.tsx       # i18n provider component
 ├── hooks/                         # Custom React hooks
-│   ├── useLocalStorage.ts         # localStorage abstraction
-│   ├── useProject.ts              # Project state management
-│   └── useRequirements.ts         # Requirements state management
+│   ├── useProject.ts              # Project state management (API calls)
+│   ├── useRequirements.ts         # Requirements state management (API calls)
+│   └── useLanguage.ts             # Language state management
 ├── lib/                           # Utility libraries
-│   ├── storage.ts                 # localStorage service
+│   ├── api.ts                     # API client for HTTP requests
+│   ├── db.ts                      # Prisma client singleton
 │   ├── validation.ts              # Validation utilities
-│   └── format.ts                  # Formatting utilities
+│   ├── format.ts                  # Formatting utilities
+│   └── i18n/
+│       └── config.ts              # i18next configuration
+├── locales/                       # Translation files
+│   ├── en.json                    # English translations
+│   └── th.json                    # Thai translations
 └── types/                         # TypeScript type definitions
     └── index.ts                   # Shared types and interfaces
 ```
 
 ### 2.3 Module Responsibilities
 
-| Module                     | Responsibility                                     |
-| -------------------------- | -------------------------------------------------- |
-| `app/`                     | Route definitions, page components, metadata       |
-| `components/ui/`           | Reusable, stateless UI primitives                  |
-| `components/layout/`       | Layout structure (header, sidebar, main content)   |
-| `components/project/`      | Project-specific UI (name display, edit)           |
-| `components/requirements/` | Requirements CRUD UI components                    |
-| `hooks/`                   | State management, side effects, localStorage sync  |
-| `lib/`                     | Pure functions for storage, validation, formatting |
-| `types/`                   | Shared TypeScript interfaces, types, constants     |
+| Module                     | Responsibility                                         |
+| -------------------------- | ------------------------------------------------------ |
+| `app/api/`                 | Backend API routes, database operations via Prisma     |
+| `app/`                     | Frontend route definitions, page components, metadata  |
+| `components/ui/`           | Reusable, stateless UI primitives                      |
+| `components/layout/`       | Layout structure (header, sidebar, main content)       |
+| `components/project/`      | Project-specific UI (name display, edit)               |
+| `components/requirements/` | Requirements CRUD UI components                        |
+| `components/providers/`    | Context providers (i18n)                               |
+| `hooks/`                   | State management, API calls, side effects              |
+| `lib/api.ts`               | HTTP client wrapper for frontend-to-backend calls      |
+| `lib/db.ts`                | Prisma client singleton for database access            |
+| `lib/validation.ts`        | Input validation (shared between frontend and backend) |
+| `lib/format.ts`            | Data formatting utilities                              |
+| `lib/i18n/`                | Internationalization configuration                     |
+| `locales/`                 | Translation files (en.json, th.json)                   |
+| `types/`                   | Shared TypeScript interfaces, types, constants         |
+| `prisma/`                  | Database schema, migrations, seeding                   |
 
 ### 2.4 Separation of Concerns
 
@@ -213,34 +361,68 @@ src/
 │                            STATE LAYER                                   │
 │  ┌─────────────────────────────────────────────────────────────────┐    │
 │  │                      Custom Hooks (hooks/)                       │    │
-│  │  - useProject: Project state + CRUD                              │    │
-│  │  - useRequirements: Requirements state + CRUD                    │    │
-│  │  - useLocalStorage: Generic localStorage hook                    │    │
+│  │  - useProject: Project state + API calls                         │    │
+│  │  - useRequirements: Requirements state + API calls               │    │
+│  │  - useLanguage: Language state management + toggle               │    │
 │  └────────────────────────────────────┬────────────────────────────┘    │
 │                                       │                                  │
 └───────────────────────────────────────┼──────────────────────────────────┘
                                         │
                                         ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                           SERVICE LAYER                                  │
-│  ┌───────────────────┐  ┌───────────────────┐  ┌───────────────────┐    │
-│  │   storage.ts      │  │   validation.ts   │  │    format.ts      │    │
-│  │  - CRUD ops       │  │  - validateName   │  │  - formatEffort   │    │
-│  │  - localStorage   │  │  - validateDesc   │  │  - formatDate     │    │
-│  └─────────┬─────────┘  │  - validateEffort │  └───────────────────┘    │
-│            │            └───────────────────┘                            │
-└────────────┼────────────────────────────────────────────────────────────┘
-             │
-             ▼
-┌─────────────────────────────────────────────────────────────────────────┐
-│                        BROWSER STORAGE                                   │
+│                         API CLIENT LAYER                                 │
 │  ┌─────────────────────────────────────────────────────────────────┐    │
-│  │                     localStorage API                             │    │
-│  │  Keys: ret_project, ret_requirements, ret_preferences,           │    │
-│  │        ret_schema_version                                        │    │
+│  │                        lib/api.ts                                │    │
+│  │  - HTTP requests (fetch API)                                     │    │
+│  │  - Request/Response handling                                     │    │
+│  │  - Error handling                                                │    │
+│  └────────────────────────────────────┬────────────────────────────┘    │
+│                                       │                                  │
+└───────────────────────────────────────┼──────────────────────────────────┘
+                                        │ HTTP (localhost:3000/api/*)
+                                        ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                       API ROUTES LAYER (Backend)                         │
+│  ┌───────────────────┐  ┌───────────────────┐  ┌───────────────────┐    │
+│  │  /api/project     │  │ /api/requirements │  │ /api/preferences  │    │
+│  │  - GET, POST      │  │ - GET, POST       │  │ - GET, PUT        │    │
+│  │  - PUT, DELETE    │  │ - /[id] routes    │  │                   │    │
+│  └─────────┬─────────┘  └─────────┬─────────┘  └─────────┬─────────┘    │
+│            │                      │                      │              │
+│            └──────────────────────┼──────────────────────┘              │
+│                                   │                                      │
+└───────────────────────────────────┼──────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         DATABASE LAYER                                   │
+│  ┌─────────────────────────────────────────────────────────────────┐    │
+│  │                    Prisma Client (lib/db.ts)                     │    │
+│  │  - Type-safe queries                                             │    │
+│  │  - Connection pooling                                            │    │
+│  └────────────────────────────────────┬────────────────────────────┘    │
+│                                       │                                  │
+└───────────────────────────────────────┼──────────────────────────────────┘
+                                        │
+                                        ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                        POSTGRESQL DATABASE                               │
+│  ┌─────────────────────────────────────────────────────────────────┐    │
+│  │  Tables: projects, requirements, user_preferences               │    │
+│  │  Constraints: foreign keys, unique indexes, check constraints    │    │
 │  └─────────────────────────────────────────────────────────────────┘    │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
+
+### 2.5 Client-Side Storage (Limited)
+
+After migrating to PostgreSQL, localStorage is only used for:
+
+| Key            | Purpose                         | Notes                                    |
+| -------------- | ------------------------------- | ---------------------------------------- |
+| `ret_language` | User language preference (i18n) | Persists locally for quick language load |
+
+All other data (project, requirements, preferences) is stored in PostgreSQL.
 
 ---
 
@@ -248,241 +430,375 @@ src/
 
 ### 3.1 Overview
 
-This application is **client-side only** with no backend API. All data operations are performed through the browser's localStorage API. This section documents the localStorage interface as the "API" for this application.
+This application uses a **REST API** architecture with Next.js API Routes (App Router) serving as the backend. The frontend communicates with the backend via HTTP requests, and the backend persists data to PostgreSQL using Prisma ORM.
 
-### 3.2 Storage Keys
+**API Characteristics:**
 
-| Key                  | Data Type     | Description                   |
-| -------------------- | ------------- | ----------------------------- |
-| `ret_project`        | JSON (Object) | Project metadata and settings |
-| `ret_requirements`   | JSON (Array)  | Array of requirement objects  |
-| `ret_preferences`    | JSON (Object) | User display preferences      |
-| `ret_schema_version` | JSON (Number) | Schema version for migrations |
+- **Base URL**: `http://localhost:3000/api` (development)
+- **Content-Type**: `application/json` for all requests and responses
+- **Authentication**: None (single-user application)
+- **Error Format**: Consistent JSON error responses
 
-### 3.3 Storage Service Interface
+### 3.2 API Endpoints
 
-```typescript
-// lib/storage.ts
+#### 3.2.1 Project Endpoints
 
-/**
- * Storage Service - Abstracts localStorage operations
- * All methods are synchronous as localStorage is synchronous
- */
+**GET /api/project** - Get current project
 
-// Constants
-export const STORAGE_KEYS = {
-  PROJECT: "ret_project",
-  REQUIREMENTS: "ret_requirements",
-  PREFERENCES: "ret_preferences",
-  SCHEMA_VERSION: "ret_schema_version",
-} as const;
-
-// Read Operations
-function getProject(): Project | null;
-function getRequirements(): Requirement[];
-function getPreferences(): UserPreferences;
-function getSchemaVersion(): number;
-
-// Write Operations
-function saveProject(project: Project): void;
-function saveRequirements(requirements: Requirement[]): void;
-function savePreferences(preferences: UserPreferences): void;
-function saveSchemaVersion(version: number): void;
-
-// Delete Operations
-function clearAllData(): void;
-function clearProject(): void;
-
-// Utility Operations
-function hasExistingProject(): boolean;
-function initializeNewProject(name: string): void;
 ```
-
-### 3.4 Data Access Patterns
-
-#### Pattern 1: Check for Existing Project (App Entry)
-
-```typescript
-// Used in app/page.tsx to determine routing
-const hasProject = storageService.hasExistingProject();
-if (hasProject) {
-  redirect("/dashboard");
-} else {
-  redirect("/setup");
-}
-```
-
-#### Pattern 2: Create New Project
-
-```typescript
-// Used in Setup page
-function createProject(name: string): void {
-  const project: Project = {
-    name: name.trim(),
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    nextRequirementId: 1,
-  };
-  storageService.saveProject(project);
-  storageService.saveRequirements([]);
-  storageService.savePreferences({ showEffortColumn: true });
-  storageService.saveSchemaVersion(1);
-}
-```
-
-#### Pattern 3: Add Requirement
-
-```typescript
-// Used in Dashboard - Add Requirement form
-function addRequirement(description: string, effort: number): Requirement {
-  const project = storageService.getProject()!;
-  const requirements = storageService.getRequirements();
-
-  const newRequirement: Requirement = {
-    id: project.nextRequirementId,
-    description: description.trim(),
-    effort: Math.round(effort * 100) / 100,
-    isActive: true,
-    createdAt: new Date().toISOString(),
-  };
-
-  // Update project's next ID
-  project.nextRequirementId++;
-  project.updatedAt = new Date().toISOString();
-
-  // Save both
-  storageService.saveProject(project);
-  storageService.saveRequirements([...requirements, newRequirement]);
-
-  return newRequirement;
-}
-```
-
-#### Pattern 4: Update Requirement
-
-```typescript
-function updateRequirement(
-  id: number,
-  updates: Partial<Pick<Requirement, "description" | "effort" | "isActive">>,
-): void {
-  const requirements = storageService.getRequirements();
-  const index = requirements.findIndex((r) => r.id === id);
-
-  if (index !== -1) {
-    requirements[index] = { ...requirements[index], ...updates };
-    storageService.saveRequirements(requirements);
-
-    // Update project timestamp
-    const project = storageService.getProject()!;
-    project.updatedAt = new Date().toISOString();
-    storageService.saveProject(project);
-  }
-}
-```
-
-#### Pattern 5: Delete Requirement
-
-```typescript
-function deleteRequirement(id: number): void {
-  const requirements = storageService.getRequirements();
-  const filtered = requirements.filter((r) => r.id !== id);
-  storageService.saveRequirements(filtered);
-
-  // Note: nextRequirementId is NOT decremented (per BR.2)
-}
-```
-
-#### Pattern 6: Toggle Requirement Status
-
-```typescript
-function toggleRequirementStatus(id: number): void {
-  const requirements = storageService.getRequirements();
-  const requirement = requirements.find((r) => r.id === id);
-
-  if (requirement) {
-    requirement.isActive = !requirement.isActive;
-    storageService.saveRequirements(requirements);
-  }
-}
-```
-
-#### Pattern 7: Export Data
-
-```typescript
-interface ExportData {
-  projectName: string;
-  requirements: Requirement[];
-  exportDate: string;
+Response 200:
+{
+  "id": 1,
+  "name": "My Project",
+  "createdAt": "2026-02-11T10:00:00.000Z",
+  "updatedAt": "2026-02-11T12:30:00.000Z",
+  "nextRequirementId": 5
 }
 
-function exportData(): ExportData {
-  const project = storageService.getProject()!;
-  const requirements = storageService.getRequirements();
-
-  return {
-    projectName: project.name,
-    requirements: requirements,
-    exportDate: new Date().toISOString(),
-  };
-}
+Response 404:
+{ "error": "No project found" }
 ```
 
-#### Pattern 8: Import Data
+**POST /api/project** - Create new project
 
-```typescript
-function importData(data: ExportData): boolean {
-  try {
-    // Validate structure
-    if (!data.projectName || !Array.isArray(data.requirements)) {
-      return false;
+```
+Request:
+{ "name": "My Project" }
+
+Response 201:
+{
+  "id": 1,
+  "name": "My Project",
+  "createdAt": "2026-02-11T10:00:00.000Z",
+  "updatedAt": "2026-02-11T10:00:00.000Z",
+  "nextRequirementId": 1
+}
+
+Response 400:
+{ "error": "Project name is required" }
+
+Response 409:
+{ "error": "Project already exists" }
+```
+
+**PUT /api/project** - Update project name
+
+```
+Request:
+{ "name": "Updated Project Name" }
+
+Response 200:
+{
+  "id": 1,
+  "name": "Updated Project Name",
+  "createdAt": "2026-02-11T10:00:00.000Z",
+  "updatedAt": "2026-02-11T14:00:00.000Z",
+  "nextRequirementId": 5
+}
+
+Response 404:
+{ "error": "No project found" }
+```
+
+**DELETE /api/project** - Delete project and all requirements
+
+```
+Response 200:
+{ "message": "Project deleted successfully" }
+
+Response 404:
+{ "error": "No project found" }
+```
+
+#### 3.2.2 Requirements Endpoints
+
+**GET /api/requirements** - Get all requirements
+
+```
+Response 200:
+{
+  "requirements": [
+    {
+      "id": 1,
+      "projectId": 1,
+      "description": "User authentication",
+      "effort": 5.5,
+      "isActive": true,
+      "createdAt": "2026-02-11T10:00:00.000Z"
     }
-
-    // Create project from import
-    const project: Project = {
-      name: data.projectName,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      nextRequirementId: Math.max(...data.requirements.map((r) => r.id), 0) + 1,
-    };
-
-    storageService.saveProject(project);
-    storageService.saveRequirements(data.requirements);
-
-    return true;
-  } catch {
-    return false;
-  }
+  ]
 }
+
+Response 200 (empty):
+{ "requirements": [] }
+```
+
+**POST /api/requirements** - Create new requirement
+
+```
+Request:
+{
+  "description": "User authentication",
+  "effort": 5.5
+}
+
+Response 201:
+{
+  "id": 1,
+  "projectId": 1,
+  "description": "User authentication",
+  "effort": 5.5,
+  "isActive": true,
+  "createdAt": "2026-02-11T10:00:00.000Z"
+}
+
+Response 400:
+{ "error": "Description is required" }
+
+Response 404:
+{ "error": "No project found. Create a project first." }
+```
+
+**GET /api/requirements/[id]** - Get single requirement
+
+```
+Response 200:
+{
+  "id": 1,
+  "projectId": 1,
+  "description": "User authentication",
+  "effort": 5.5,
+  "isActive": true,
+  "createdAt": "2026-02-11T10:00:00.000Z"
+}
+
+Response 404:
+{ "error": "Requirement not found" }
+```
+
+**PUT /api/requirements/[id]** - Update requirement
+
+```
+Request:
+{
+  "description": "Updated description",
+  "effort": 8.0,
+  "isActive": false
+}
+
+Response 200:
+{
+  "id": 1,
+  "projectId": 1,
+  "description": "Updated description",
+  "effort": 8.0,
+  "isActive": false,
+  "createdAt": "2026-02-11T10:00:00.000Z"
+}
+
+Response 404:
+{ "error": "Requirement not found" }
+```
+
+**DELETE /api/requirements/[id]** - Delete requirement
+
+```
+Response 200:
+{ "message": "Requirement deleted successfully" }
+
+Response 404:
+{ "error": "Requirement not found" }
+```
+
+**PATCH /api/requirements/[id]/toggle** - Toggle requirement status
+
+```
+Response 200:
+{
+  "id": 1,
+  "projectId": 1,
+  "description": "User authentication",
+  "effort": 5.5,
+  "isActive": false,
+  "createdAt": "2026-02-11T10:00:00.000Z"
+}
+
+Response 404:
+{ "error": "Requirement not found" }
+```
+
+#### 3.2.3 Health Check Endpoint
+
+**GET /api/health** - Health check
+
+```
+Response 200:
+{
+  "status": "healthy",
+  "database": "connected",
+  "timestamp": "2026-02-11T10:00:00.000Z"
+}
+
+Response 503:
+{
+  "status": "unhealthy",
+  "database": "disconnected",
+  "error": "Database connection failed"
+}
+```
+
+### 3.3 Error Response Format
+
+All error responses follow a consistent format:
+
+```typescript
+interface ErrorResponse {
+  error: string;
+  details?: string;
+  code?: string;
+}
+```
+
+**HTTP Status Codes:**
+
+| Status | Meaning               | Usage                                |
+| ------ | --------------------- | ------------------------------------ |
+| 200    | OK                    | Successful GET, PUT, DELETE          |
+| 201    | Created               | Successful POST                      |
+| 400    | Bad Request           | Invalid input, validation errors     |
+| 404    | Not Found             | Resource doesn't exist               |
+| 409    | Conflict              | Resource already exists              |
+| 500    | Internal Server Error | Database errors, unexpected failures |
+| 503    | Service Unavailable   | Database connection failed           |
+
+### 3.4 API Client Implementation
+
+The frontend uses a centralized API client (`lib/api.ts`) for all HTTP requests:
+
+```typescript
+// lib/api.ts
+
+const API_BASE = "/api";
+
+async function apiRequest<T>(
+  endpoint: string,
+  options?: RequestInit,
+): Promise<T> {
+  const response = await fetch(`${API_BASE}${endpoint}`, {
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+    ...options,
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new ApiError(error.error, response.status);
+  }
+
+  return response.json();
+}
+
+// Project API
+export const projectApi = {
+  get: () => apiRequest<Project>("/project"),
+  create: (name: string) =>
+    apiRequest<Project>("/project", {
+      method: "POST",
+      body: JSON.stringify({ name }),
+    }),
+  update: (name: string) =>
+    apiRequest<Project>("/project", {
+      method: "PUT",
+      body: JSON.stringify({ name }),
+    }),
+  delete: () =>
+    apiRequest<{ message: string }>("/project", { method: "DELETE" }),
+};
+
+// Requirements API
+export const requirementsApi = {
+  getAll: () => apiRequest<{ requirements: Requirement[] }>("/requirements"),
+  get: (id: number) => apiRequest<Requirement>(`/requirements/${id}`),
+  create: (data: { description: string; effort: number }) =>
+    apiRequest<Requirement>("/requirements", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  update: (id: number, data: Partial<Requirement>) =>
+    apiRequest<Requirement>(`/requirements/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+  delete: (id: number) =>
+    apiRequest<{ message: string }>(`/requirements/${id}`, {
+      method: "DELETE",
+    }),
+  toggle: (id: number) =>
+    apiRequest<Requirement>(`/requirements/${id}/toggle`, { method: "PATCH" }),
+};
 ```
 
 ### 3.5 Error Handling
 
-| Error Type           | Cause                    | Handling                          |
-| -------------------- | ------------------------ | --------------------------------- |
-| `QuotaExceededError` | localStorage full (~5MB) | Show user-friendly error message  |
-| `JSON.parse` error   | Corrupted data           | Offer to reset application        |
-| `null` from getItem  | Key doesn't exist        | Return default/null appropriately |
+#### Backend Error Handling (API Routes)
 
 ```typescript
-function safeGetItem<T>(key: string, defaultValue: T): T {
-  try {
-    const item = localStorage.getItem(key);
-    return item ? JSON.parse(item) : defaultValue;
-  } catch {
-    console.error(`Error reading ${key} from localStorage`);
-    return defaultValue;
+// Error handling in API routes
+import { NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
+
+function handleDatabaseError(error: unknown) {
+  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    switch (error.code) {
+      case "P2002":
+        return NextResponse.json(
+          { error: "Resource already exists" },
+          { status: 409 },
+        );
+      case "P2025":
+        return NextResponse.json(
+          { error: "Resource not found" },
+          { status: 404 },
+        );
+      default:
+        return NextResponse.json(
+          { error: "Database error", code: error.code },
+          { status: 500 },
+        );
+    }
+  }
+
+  return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+}
+```
+
+#### Frontend Error Handling
+
+```typescript
+// Custom API error class
+class ApiError extends Error {
+  constructor(
+    message: string,
+    public status: number,
+  ) {
+    super(message);
+    this.name = "ApiError";
   }
 }
 
-function safeSetItem(key: string, value: unknown): boolean {
+// Usage in hooks
+async function loadProject() {
   try {
-    localStorage.setItem(key, JSON.stringify(value));
-    return true;
+    const project = await projectApi.get();
+    setProject(project);
   } catch (error) {
-    if (error instanceof DOMException && error.name === "QuotaExceededError") {
-      console.error("localStorage quota exceeded");
+    if (error instanceof ApiError && error.status === 404) {
+      setProject(null); // No project exists
+    } else {
+      setError("Failed to load project");
     }
-    return false;
   }
 }
 ```
@@ -497,22 +813,30 @@ function safeSetItem(key: string, value: unknown): boolean {
 sequenceDiagram
     participant User as User
     participant App as App (page.tsx)
-    participant Storage as localStorage
+    participant API as API Client
+    participant Backend as /api/project
+    participant DB as PostgreSQL
     participant Setup as Setup Page
     participant Dashboard as Dashboard
 
     User->>App: Navigate to /
-    App->>Storage: Check ret_project exists?
+    App->>API: projectApi.get()
+    API->>Backend: GET /api/project
+    Backend->>DB: SELECT * FROM projects LIMIT 1
 
     alt No existing project
-        Storage-->>App: null
+        DB-->>Backend: No rows
+        Backend-->>API: 404 Not Found
+        API-->>App: ApiError (404)
         App->>Setup: Redirect to /setup
         Setup->>User: Show project setup form
     else Project exists
-        Storage-->>App: Project data
+        DB-->>Backend: Project row
+        Backend-->>API: 200 OK (project)
+        API-->>App: Project data
         App->>Dashboard: Redirect to /dashboard
-        Dashboard->>Storage: Load all data
-        Storage-->>Dashboard: Project, Requirements, Preferences
+        Dashboard->>API: Load all data
+        API-->>Dashboard: Project, Requirements
         Dashboard->>User: Display dashboard
     end
 ```
@@ -524,7 +848,9 @@ sequenceDiagram
     participant User as User
     participant Form as Setup Form
     participant Validator as Validation
-    participant Storage as localStorage
+    participant API as API Client
+    participant Backend as /api/project
+    participant DB as PostgreSQL
     participant Router as Next.js Router
 
     User->>Form: Enter project name
@@ -537,11 +863,12 @@ sequenceDiagram
         Form->>User: Show error message
     else Valid name
         Validator-->>Form: Valid
-        Form->>Storage: Save ret_project
-        Form->>Storage: Save ret_requirements = []
-        Form->>Storage: Save ret_preferences
-        Form->>Storage: Save ret_schema_version = 1
-        Storage-->>Form: Success
+        Form->>API: projectApi.create(name)
+        API->>Backend: POST /api/project {name}
+        Backend->>DB: INSERT INTO projects
+        DB-->>Backend: Project row
+        Backend-->>API: 201 Created (project)
+        API-->>Form: Success
         Form->>Router: Navigate to /dashboard
         Router->>User: Show dashboard
     end
@@ -555,7 +882,9 @@ sequenceDiagram
     participant Form as Add Form
     participant Validator as Validation
     participant State as React State
-    participant Storage as localStorage
+    participant API as API Client
+    participant Backend as /api/requirements
+    participant DB as PostgreSQL
     participant List as Requirements List
 
     User->>Form: Enter description
@@ -570,14 +899,13 @@ sequenceDiagram
         Form->>User: Show inline errors
     else Validation passes
         Validator-->>Form: Valid data
-        Form->>Storage: Get current project
-        Storage-->>Form: Project with nextId
-
-        Form->>Form: Create Requirement object
-        Note over Form: id = nextRequirementId<br/>isActive = true<br/>createdAt = now()
-
-        Form->>Storage: Save updated requirements array
-        Form->>Storage: Save project (increment nextId)
+        Form->>API: requirementsApi.create({description, effort})
+        API->>Backend: POST /api/requirements
+        Backend->>DB: INSERT INTO requirements
+        Note over DB: ID assigned by database<br/>isActive = true<br/>createdAt = now()
+        DB-->>Backend: Requirement row
+        Backend-->>API: 201 Created (requirement)
+        API-->>Form: New requirement
 
         Form->>State: Update requirements state
         State->>List: Re-render with new item
@@ -596,7 +924,9 @@ sequenceDiagram
     participant Row as Requirement Row
     participant Form as Edit Form
     participant Validator as Validation
-    participant Storage as localStorage
+    participant API as API Client
+    participant Backend as /api/requirements/[id]
+    participant DB as PostgreSQL
     participant Stats as Statistics
 
     User->>Row: Click "Edit" button
@@ -612,11 +942,12 @@ sequenceDiagram
         Validator-->>Form: Error
         Form->>User: Show alert
     else Validation passes
-        Form->>Storage: Get requirements
-        Storage-->>Form: Requirements array
-        Form->>Form: Update requirement in array
-        Form->>Storage: Save requirements
-        Form->>Storage: Update project.updatedAt
+        Form->>API: requirementsApi.update(id, data)
+        API->>Backend: PUT /api/requirements/[id]
+        Backend->>DB: UPDATE requirements SET ...
+        DB-->>Backend: Updated row
+        Backend-->>API: 200 OK (requirement)
+        API-->>Form: Updated requirement
 
         Form->>Row: Exit edit mode
         Row->>Row: Update display values
@@ -636,7 +967,9 @@ sequenceDiagram
     participant User as User
     participant Row as Requirement Row
     participant Modal as Delete Modal
-    participant Storage as localStorage
+    participant API as API Client
+    participant Backend as /api/requirements/[id]
+    participant DB as PostgreSQL
     participant State as React State
     participant Stats as Statistics
 
@@ -649,11 +982,12 @@ sequenceDiagram
         Modal->>Modal: Close
     else User confirms
         User->>Modal: Click "Delete"
-        Modal->>Storage: Get requirements
-        Storage-->>Modal: Requirements array
-        Modal->>Modal: Filter out deleted item
-        Modal->>Storage: Save filtered array
-        Note over Storage: nextRequirementId NOT decremented
+        Modal->>API: requirementsApi.delete(id)
+        API->>Backend: DELETE /api/requirements/[id]
+        Backend->>DB: DELETE FROM requirements WHERE id = ?
+        DB-->>Backend: Deleted
+        Backend-->>API: 200 OK
+        API-->>Modal: Success
 
         Modal->>State: Update state
         State->>Row: Remove from DOM
@@ -671,18 +1005,19 @@ sequenceDiagram
 sequenceDiagram
     participant User as User
     participant Toggle as Toggle Switch
-    participant Storage as localStorage
+    participant API as API Client
+    participant Backend as /api/requirements/[id]/toggle
+    participant DB as PostgreSQL
     participant Row as Requirement Row
     participant Stats as Statistics
 
     User->>Toggle: Click toggle
-    Toggle->>Storage: Get requirements
-    Storage-->>Toggle: Requirements array
-
-    Toggle->>Toggle: Find requirement by ID
-    Toggle->>Toggle: Toggle isActive boolean
-
-    Toggle->>Storage: Save requirements
+    Toggle->>API: requirementsApi.toggle(id)
+    API->>Backend: PATCH /api/requirements/[id]/toggle
+    Backend->>DB: UPDATE requirements SET isActive = NOT isActive
+    DB-->>Backend: Updated row
+    Backend-->>API: 200 OK (requirement)
+    API-->>Toggle: Updated requirement
 
     Toggle->>Row: Update visual state
     Note over Row: Active: green toggle, normal opacity<br/>Inactive: gray toggle, reduced opacity
@@ -697,13 +1032,23 @@ sequenceDiagram
 sequenceDiagram
     participant User as User
     participant Button as Export Button
-    participant Storage as localStorage
+    participant API as API Client
+    participant Backend as /api/*
+    participant DB as PostgreSQL
     participant Browser as Browser API
 
     User->>Button: Click "Export"
-    Button->>Storage: Get project name
-    Button->>Storage: Get requirements
-    Storage-->>Button: Data
+    Button->>API: projectApi.get()
+    API->>Backend: GET /api/project
+    Backend->>DB: SELECT * FROM projects
+    DB-->>Backend: Project
+    Backend-->>API: Project data
+
+    Button->>API: requirementsApi.getAll()
+    API->>Backend: GET /api/requirements
+    Backend->>DB: SELECT * FROM requirements
+    DB-->>Backend: Requirements
+    Backend-->>API: Requirements data
 
     Button->>Button: Create ExportData object
     Note over Button: {projectName, requirements, exportDate}
@@ -729,7 +1074,9 @@ sequenceDiagram
     participant Input as File Input
     participant Reader as FileReader
     participant Validator as Validation
-    participant Storage as localStorage
+    participant API as API Client
+    participant Backend as /api/*
+    participant DB as PostgreSQL
     participant Dashboard as Dashboard
 
     User->>Button: Click "Import"
@@ -751,10 +1098,18 @@ sequenceDiagram
             Validator-->>Dashboard: Invalid format
             Dashboard->>User: Show "Invalid file format"
         else Valid structure
-            Validator->>Storage: Save project name
-            Validator->>Storage: Save requirements
+            Validator->>API: projectApi.delete() (if exists)
+            Validator->>API: projectApi.create(projectName)
+            API->>Backend: POST /api/project
+            Backend->>DB: INSERT INTO projects
 
-            Storage-->>Dashboard: Success
+            loop For each requirement
+                Validator->>API: requirementsApi.create(req)
+                API->>Backend: POST /api/requirements
+                Backend->>DB: INSERT INTO requirements
+            end
+
+            DB-->>Dashboard: Success
             Dashboard->>Dashboard: Reload all data
             Dashboard->>User: Show "Import successful!"
         end
@@ -768,7 +1123,9 @@ sequenceDiagram
     participant User as User
     participant Button as New Project Button
     participant Modal as Confirmation Modal
-    participant Storage as localStorage
+    participant API as API Client
+    participant Backend as /api/project
+    participant DB as PostgreSQL
     participant Router as Next.js Router
 
     User->>Button: Click "New Project"
@@ -780,10 +1137,13 @@ sequenceDiagram
         Modal->>Modal: Close
     else User confirms
         User->>Modal: Click "Yes, Start New"
-        Modal->>Storage: Remove ret_project
-        Modal->>Storage: Remove ret_requirements
-        Modal->>Storage: Remove ret_preferences
-        Note over Storage: ret_schema_version kept
+        Modal->>API: projectApi.delete()
+        API->>Backend: DELETE /api/project
+        Backend->>DB: DELETE FROM requirements WHERE projectId = ?
+        Backend->>DB: DELETE FROM projects WHERE id = ?
+        DB-->>Backend: Deleted
+        Backend-->>API: 200 OK
+        API-->>Modal: Success
 
         Modal->>Router: Navigate to /setup
         Router->>User: Show project setup
@@ -827,60 +1187,116 @@ sequenceDiagram
 ```mermaid
 erDiagram
     PROJECT ||--o{ REQUIREMENT : "contains"
-    PROJECT ||--|| USER_PREFERENCES : "has"
 
     PROJECT {
-        string name PK "1-100 characters"
-        datetime createdAt "ISO 8601"
-        datetime updatedAt "ISO 8601"
-        int nextRequirementId "Auto-increment counter"
+        int id PK "Auto-increment"
+        string name "1-100 characters"
+        datetime created_at "timestamptz"
+        datetime updated_at "timestamptz"
+        int next_requirement_id "Starts at 1"
     }
 
     REQUIREMENT {
-        int id PK "Sequential, never reused"
+        int id PK "Auto-increment"
+        int project_id FK "References PROJECT"
         string description "1-500 characters"
-        decimal effort "0.01-9999, 2 decimals"
-        boolean isActive "Default: true"
-        datetime createdAt "ISO 8601"
-    }
-
-    USER_PREFERENCES {
-        boolean showEffortColumn "Default: true"
-    }
-
-    SCHEMA_VERSION {
-        int version "Current: 1"
+        decimal effort "DECIMAL(6,2)"
+        boolean is_active "Default: true"
+        datetime created_at "timestamptz"
     }
 ```
 
-### 5.2 Data Models
+### 5.2 PostgreSQL Table Definitions
+
+#### Prisma Schema (`prisma/schema.prisma`)
+
+```prisma
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Project {
+  id                Int           @id @default(autoincrement())
+  name              String        @db.VarChar(100)
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedAt         DateTime      @updatedAt @map("updated_at")
+  nextRequirementId Int           @default(1) @map("next_requirement_id")
+  requirements      Requirement[]
+
+  @@map("projects")
+}
+
+model Requirement {
+  id          Int      @id @default(autoincrement())
+  projectId   Int      @map("project_id")
+  description String   @db.VarChar(500)
+  effort      Decimal  @db.Decimal(6, 2)
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("requirements")
+}
+```
+
+#### SQL Table Definitions (Generated)
+
+```sql
+-- Projects table
+CREATE TABLE projects (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    next_requirement_id INTEGER NOT NULL DEFAULT 1
+);
+
+-- Requirements table
+CREATE TABLE requirements (
+    id SERIAL PRIMARY KEY,
+    project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+    description VARCHAR(500) NOT NULL,
+    effort DECIMAL(6,2) NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Index for faster requirement lookups by project
+CREATE INDEX idx_requirements_project_id ON requirements(project_id);
+```
+
+### 5.3 Data Models (TypeScript)
 
 #### Project Entity
 
-| Field               | Type   | Constraints          | Default | Description                 |
-| ------------------- | ------ | -------------------- | ------- | --------------------------- |
-| `name`              | string | 1-100 chars, trimmed | -       | Project name                |
-| `createdAt`         | string | ISO 8601 datetime    | now()   | Creation timestamp          |
-| `updatedAt`         | string | ISO 8601 datetime    | now()   | Last modification timestamp |
-| `nextRequirementId` | number | >= 1                 | 1       | Next ID to assign           |
+| Field               | Type     | DB Column             | Constraints            | Default | Description                 |
+| ------------------- | -------- | --------------------- | ---------------------- | ------- | --------------------------- |
+| `id`                | number   | `id`                  | PK, auto-increment     | auto    | Unique identifier           |
+| `name`              | string   | `name`                | VARCHAR(100), NOT NULL | -       | Project name                |
+| `createdAt`         | DateTime | `created_at`          | TIMESTAMPTZ            | now()   | Creation timestamp          |
+| `updatedAt`         | DateTime | `updated_at`          | TIMESTAMPTZ            | now()   | Last modification timestamp |
+| `nextRequirementId` | number   | `next_requirement_id` | INTEGER, NOT NULL      | 1       | Next ID to assign           |
 
 #### Requirement Entity
 
-| Field         | Type    | Constraints               | Default | Description             |
-| ------------- | ------- | ------------------------- | ------- | ----------------------- |
-| `id`          | number  | Unique, sequential        | -       | Auto-assigned ID        |
-| `description` | string  | 1-500 chars, trimmed      | -       | Requirement description |
-| `effort`      | number  | 0.01-9999, 2 decimals max | -       | Effort in days          |
-| `isActive`    | boolean | -                         | true    | Active/Inactive status  |
-| `createdAt`   | string  | ISO 8601 datetime         | now()   | Creation timestamp      |
+| Field         | Type     | DB Column     | Constraints                | Default | Description             |
+| ------------- | -------- | ------------- | -------------------------- | ------- | ----------------------- |
+| `id`          | number   | `id`          | PK, auto-increment         | auto    | Unique identifier       |
+| `projectId`   | number   | `project_id`  | FK → projects(id), CASCADE | -       | Parent project          |
+| `description` | string   | `description` | VARCHAR(500), NOT NULL     | -       | Requirement description |
+| `effort`      | Decimal  | `effort`      | DECIMAL(6,2), NOT NULL     | -       | Effort in days          |
+| `isActive`    | boolean  | `is_active`   | BOOLEAN, NOT NULL          | true    | Active/Inactive status  |
+| `createdAt`   | DateTime | `created_at`  | TIMESTAMPTZ, NOT NULL      | now()   | Creation timestamp      |
 
-#### UserPreferences Entity
-
-| Field              | Type    | Constraints | Default | Description             |
-| ------------------ | ------- | ----------- | ------- | ----------------------- |
-| `showEffortColumn` | boolean | -           | true    | Show/hide effort column |
-
-### 5.3 Computed Values (Not Stored)
+### 5.4 Computed Values (Not Stored)
 
 | Value               | Formula                                                                      | Used In        |
 | ------------------- | ---------------------------------------------------------------------------- | -------------- |
@@ -889,54 +1305,45 @@ erDiagram
 | Inactive Count      | `requirements.filter(r => !r.isActive).length`                               | Statistics     |
 | Total Active Effort | `requirements.filter(r => r.isActive).reduce((sum, r) => sum + r.effort, 0)` | Effort Summary |
 
-### 5.4 Storage Schema
+### 5.5 Sample Data
 
-```json
-// ret_project
-{
-  "name": "Project Alpha",
-  "createdAt": "2026-02-11T10:30:00.000Z",
-  "updatedAt": "2026-02-11T14:45:00.000Z",
-  "nextRequirementId": 5
-}
+```sql
+-- Sample project
+INSERT INTO projects (name, next_requirement_id)
+VALUES ('Project Alpha', 5);
 
-// ret_requirements
-[
-  {
-    "id": 1,
-    "description": "User authentication module",
-    "effort": 5.5,
-    "isActive": true,
-    "createdAt": "2026-02-11T10:31:00.000Z"
-  },
-  {
-    "id": 2,
-    "description": "Dashboard UI",
-    "effort": 3.0,
-    "isActive": false,
-    "createdAt": "2026-02-11T10:32:00.000Z"
-  }
-]
-
-// ret_preferences
-{
-  "showEffortColumn": true
-}
-
-// ret_schema_version
-1
+-- Sample requirements
+INSERT INTO requirements (project_id, description, effort, is_active)
+VALUES
+  (1, 'User authentication module', 5.50, true),
+  (1, 'Dashboard UI', 3.00, false),
+  (1, 'API integration', 8.00, true),
+  (1, 'Testing suite', 4.50, true);
 ```
+
+### 5.6 Database Constraints
+
+| Constraint Type | Table        | Columns     | Description                         |
+| --------------- | ------------ | ----------- | ----------------------------------- |
+| PRIMARY KEY     | projects     | id          | Unique project identifier           |
+| PRIMARY KEY     | requirements | id          | Unique requirement identifier       |
+| FOREIGN KEY     | requirements | project_id  | References projects(id), CASCADE    |
+| NOT NULL        | projects     | name        | Project name required               |
+| NOT NULL        | requirements | description | Description required                |
+| NOT NULL        | requirements | effort      | Effort value required               |
+| CHECK           | requirements | effort > 0  | Effort must be positive (app-level) |
+| INDEX           | requirements | project_id  | Faster lookups by project           |
 
 ---
 
 ## 6. Architecture Diagram
 
-### 6.1 High-Level Client Architecture
+### 6.1 High-Level Application Architecture
 
 ```mermaid
 flowchart TB
     subgraph Browser["Browser Environment"]
-        subgraph NextJS["Next.js Application"]
+        subgraph NextJS["Next.js Frontend"]
             subgraph Pages["Pages (App Router)"]
                 Root["/ (page.tsx)<br/>Entry Point"]
                 Setup["/setup (page.tsx)<br/>Project Setup"]
@@ -952,20 +1359,37 @@ flowchart TB
             subgraph Hooks["Custom Hooks"]
                 UseProject["useProject()"]
                 UseRequirements["useRequirements()"]
-                UseLocalStorage["useLocalStorage()"]
+                UseLanguage["useLanguage()"]
             end
 
-            subgraph Lib["Library Functions"]
-                Storage["storage.ts<br/>CRUD Operations"]
+            subgraph ClientLib["Client Library"]
+                APIClient["api.ts<br/>HTTP Client"]
                 Validation["validation.ts<br/>Input Validation"]
                 Format["format.ts<br/>Data Formatting"]
             end
         end
 
         subgraph BrowserAPI["Browser APIs"]
-            LocalStorage["localStorage<br/>Persistent Storage"]
+            LocalStorage["localStorage<br/>(Language Only)"]
             FileAPI["File API<br/>Import/Export"]
         end
+    end
+
+    subgraph Server["Server Environment (Next.js API Routes)"]
+        subgraph APIRoutes["API Routes (/api)"]
+            ProjectAPI["/api/project<br/>Project CRUD"]
+            RequirementsAPI["/api/requirements<br/>Requirements CRUD"]
+            HealthAPI["/api/health<br/>Health Check"]
+        end
+
+        subgraph ServerLib["Server Library"]
+            DBClient["db.ts<br/>Prisma Client"]
+        end
+    end
+
+    subgraph Database["PostgreSQL Database"]
+        ProjectsTable["projects"]
+        RequirementsTable["requirements"]
     end
 
     Root --> |"No project"| Setup
@@ -973,8 +1397,12 @@ flowchart TB
 
     Pages --> Components
     Components --> Hooks
-    Hooks --> Lib
-    Lib --> BrowserAPI
+    Hooks --> ClientLib
+    ClientLib --> |"HTTP Request"| APIRoutes
+    APIRoutes --> ServerLib
+    ServerLib --> Database
+
+    UseLanguage --> LocalStorage
 ```
 
 ### 6.2 Data Flow Diagram
@@ -993,22 +1421,31 @@ flowchart LR
         Hook["Custom Hook<br/>(useState + useEffect)"]
     end
 
-    subgraph Service["Service Layer"]
-        StorageService["Storage Service"]
+    subgraph Client["API Client Layer"]
+        APIClient["api.ts<br/>fetch wrapper"]
         ValidationService["Validation"]
     end
 
-    subgraph Storage["Storage Layer"]
-        LS["localStorage"]
+    subgraph API["API Routes Layer"]
+        Routes["/api/*<br/>Route Handlers"]
+    end
+
+    subgraph DB["Database Layer"]
+        Prisma["Prisma Client"]
+        PG["PostgreSQL"]
     end
 
     Click --> Component
     Component --> |"Call hook method"| Hook
     Hook --> |"Validate data"| ValidationService
-    ValidationService --> |"Valid"| StorageService
-    StorageService --> |"Read/Write"| LS
-    LS --> |"Return data"| StorageService
-    StorageService --> |"Update state"| Hook
+    ValidationService --> |"Valid"| APIClient
+    APIClient --> |"HTTP Request"| Routes
+    Routes --> Prisma
+    Prisma --> |"SQL Query"| PG
+    PG --> |"Result"| Prisma
+    Prisma --> |"Response"| Routes
+    Routes --> |"JSON Response"| APIClient
+    APIClient --> |"Update state"| Hook
     Hook --> |"Re-render"| Component
     Component --> |"Display"| User
 ```
@@ -1051,14 +1488,14 @@ flowchart TB
 stateDiagram-v2
     [*] --> CheckingProject: App loads
 
-    CheckingProject --> NoProject: No data in localStorage
-    CheckingProject --> HasProject: Data exists
+    CheckingProject --> NoProject: GET /api/project returns 404
+    CheckingProject --> HasProject: GET /api/project returns 200
 
     NoProject --> SetupScreen: Redirect
     HasProject --> DashboardScreen: Redirect
 
     SetupScreen --> CreatingProject: Submit form
-    CreatingProject --> DashboardScreen: Save & redirect
+    CreatingProject --> DashboardScreen: POST /api/project & redirect
 
     DashboardScreen --> AddingRequirement: Add form submit
     DashboardScreen --> EditingRequirement: Click edit
@@ -1068,13 +1505,13 @@ stateDiagram-v2
     DashboardScreen --> ImportingData: Click import
     DashboardScreen --> ResettingProject: Click new project
 
-    AddingRequirement --> DashboardScreen: Save to localStorage
-    EditingRequirement --> DashboardScreen: Save/Cancel
-    DeletingRequirement --> DashboardScreen: Confirm/Cancel
-    TogglingStatus --> DashboardScreen: Toggle saved
+    AddingRequirement --> DashboardScreen: POST /api/requirements
+    EditingRequirement --> DashboardScreen: PUT /api/requirements/[id]
+    DeletingRequirement --> DashboardScreen: DELETE /api/requirements/[id]
+    TogglingStatus --> DashboardScreen: PATCH /api/requirements/[id]/toggle
     ExportingData --> DashboardScreen: File downloaded
-    ImportingData --> DashboardScreen: Data loaded
-    ResettingProject --> SetupScreen: Clear data
+    ImportingData --> DashboardScreen: Data imported via API
+    ResettingProject --> SetupScreen: DELETE /api/project
 ```
 
 ---
@@ -1087,9 +1524,10 @@ stateDiagram-v2
 // types/index.ts
 
 /**
- * Project entity - stored in ret_project
+ * Project entity - from database
  */
 export interface Project {
+  id: number;
   name: string;
   createdAt: string; // ISO 8601
   updatedAt: string; // ISO 8601
@@ -1097,10 +1535,11 @@ export interface Project {
 }
 
 /**
- * Requirement entity - stored in ret_requirements array
+ * Requirement entity - from database
  */
 export interface Requirement {
   id: number;
+  projectId: number;
   description: string;
   effort: number;
   isActive: boolean;
@@ -1108,10 +1547,42 @@ export interface Requirement {
 }
 
 /**
- * User preferences - stored in ret_preferences
+ * Create project request
  */
-export interface UserPreferences {
-  showEffortColumn: boolean;
+export interface CreateProjectRequest {
+  name: string;
+}
+
+/**
+ * Update project request
+ */
+export interface UpdateProjectRequest {
+  name?: string;
+}
+
+/**
+ * Create requirement request
+ */
+export interface CreateRequirementRequest {
+  description: string;
+  effort: number;
+}
+
+/**
+ * Update requirement request
+ */
+export interface UpdateRequirementRequest {
+  description?: string;
+  effort?: number;
+  isActive?: boolean;
+}
+
+/**
+ * API Error response
+ */
+export interface ApiErrorResponse {
+  error: string;
+  details?: string;
 }
 
 /**
@@ -1119,7 +1590,7 @@ export interface UserPreferences {
  */
 export interface ExportData {
   projectName: string;
-  requirements: Requirement[];
+  requirements: Omit<Requirement, "id" | "projectId">[];
   exportDate: string; // ISO 8601
 }
 
@@ -1140,6 +1611,27 @@ export interface RequirementStats {
   inactive: number;
   totalActiveEffort: number;
 }
+
+/**
+ * Supported languages for i18n
+ */
+export const SUPPORTED_LANGUAGES = ["en", "th"] as const;
+export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
+
+/**
+ * Language configuration
+ */
+export interface LanguageConfig {
+  code: SupportedLanguage;
+  name: string;
+  nativeName: string;
+  flag: string;
+}
+
+export const LANGUAGE_OPTIONS: LanguageConfig[] = [
+  { code: "en", name: "English", nativeName: "English", flag: "🇺🇸" },
+  { code: "th", name: "Thai", nativeName: "ไทย", flag: "🇹🇭" },
+];
 ```
 
 ### 7.2 Shared Constants
@@ -1148,13 +1640,28 @@ export interface RequirementStats {
 // lib/constants.ts
 
 /**
- * localStorage key names
+ * localStorage key names (only language preference stored client-side)
  */
 export const STORAGE_KEYS = {
-  PROJECT: "ret_project",
-  REQUIREMENTS: "ret_requirements",
-  PREFERENCES: "ret_preferences",
-  SCHEMA_VERSION: "ret_schema_version",
+  LANGUAGE: "ret_language",
+} as const;
+
+/**
+ * API endpoints
+ */
+export const API_ENDPOINTS = {
+  PROJECT: "/api/project",
+  REQUIREMENTS: "/api/requirements",
+  HEALTH: "/api/health",
+} as const;
+
+/**
+ * i18n constants
+ */
+export const I18N = {
+  SUPPORTED_LANGUAGES: ["en", "th"] as const,
+  DEFAULT_LANGUAGE: "en",
+  STORAGE_KEY: "ret_language",
 } as const;
 
 /**
@@ -1203,33 +1710,41 @@ export const ROUTES = {
 export interface UseProjectReturn {
   project: Project | null;
   isLoading: boolean;
-  createProject: (name: string) => ValidationResult;
-  updateProjectName: (name: string) => ValidationResult;
-  clearProject: () => void;
-  hasProject: () => boolean;
+  error: string | null;
+  createProject: (name: string) => Promise<ValidationResult>;
+  updateProjectName: (name: string) => Promise<ValidationResult>;
+  deleteProject: () => Promise<void>;
+  refetch: () => Promise<void>;
 }
 
 // hooks/useRequirements.ts
 export interface UseRequirementsReturn {
   requirements: Requirement[];
   isLoading: boolean;
+  error: string | null;
   stats: RequirementStats;
-  addRequirement: (description: string, effort: number) => ValidationResult;
+  addRequirement: (
+    description: string,
+    effort: number,
+  ) => Promise<ValidationResult>;
   updateRequirement: (
     id: number,
     updates: Partial<Pick<Requirement, "description" | "effort">>,
-  ) => ValidationResult;
-  deleteRequirement: (id: number) => void;
-  toggleStatus: (id: number) => void;
+  ) => Promise<ValidationResult>;
+  deleteRequirement: (id: number) => Promise<void>;
+  toggleStatus: (id: number) => Promise<void>;
   exportData: () => ExportData;
-  importData: (data: ExportData) => ValidationResult;
+  importData: (data: ExportData) => Promise<ValidationResult>;
+  refetch: () => Promise<void>;
 }
 
-// hooks/useLocalStorage.ts
-export interface UseLocalStorageReturn<T> {
-  value: T;
-  setValue: (value: T) => boolean;
-  removeValue: () => void;
+// hooks/useLanguage.ts (localStorage for quick access)
+export interface UseLanguageReturn {
+  currentLanguage: SupportedLanguage;
+  setLanguage: (lang: SupportedLanguage) => void;
+  toggleLanguage: () => void;
+  supportedLanguages: readonly SupportedLanguage[];
+  isReady: boolean;
 }
 ```
 
@@ -1301,27 +1816,40 @@ export interface RequirementFormProps {
 ### 7.5 Service Contracts
 
 ```typescript
-// lib/storage.ts
-export interface StorageService {
-  // Project
-  getProject(): Project | null;
-  saveProject(project: Project): boolean;
-  hasExistingProject(): boolean;
+// lib/api.ts - API Client
+export interface ProjectApi {
+  get(): Promise<Project | null>;
+  create(data: CreateProjectRequest): Promise<Project>;
+  update(data: UpdateProjectRequest): Promise<Project>;
+  delete(): Promise<void>;
+}
 
-  // Requirements
-  getRequirements(): Requirement[];
-  saveRequirements(requirements: Requirement[]): boolean;
+export interface RequirementsApi {
+  getAll(): Promise<Requirement[]>;
+  get(id: number): Promise<Requirement>;
+  create(data: CreateRequirementRequest): Promise<Requirement>;
+  update(id: number, data: UpdateRequirementRequest): Promise<Requirement>;
+  delete(id: number): Promise<void>;
+  toggle(id: number): Promise<Requirement>;
+}
 
-  // Preferences
-  getPreferences(): UserPreferences;
-  savePreferences(preferences: UserPreferences): boolean;
-
-  // Schema
-  getSchemaVersion(): number;
-  saveSchemaVersion(version: number): boolean;
-
-  // Utility
-  clearAllData(): void;
+// lib/db.ts - Prisma Client Singleton
+export interface DatabaseService {
+  project: {
+    findFirst(): Promise<Project | null>;
+    create(data: { name: string }): Promise<Project>;
+    update(data: Partial<Project>): Promise<Project>;
+    delete(): Promise<void>;
+  };
+  requirement: {
+    findMany(projectId: number): Promise<Requirement[]>;
+    findUnique(id: number): Promise<Requirement | null>;
+    create(
+      data: CreateRequirementRequest & { projectId: number },
+    ): Promise<Requirement>;
+    update(id: number, data: UpdateRequirementRequest): Promise<Requirement>;
+    delete(id: number): Promise<void>;
+  };
 }
 
 // lib/validation.ts
@@ -1648,32 +2176,123 @@ describe("useRequirements", () => {
 });
 ```
 
+### 8.7 Internationalization (i18n) Guidelines
+
+#### Translation File Structure
+
+Translation files are located in `src/locales/` with one JSON file per language:
+
+```
+src/locales/
+├── en.json    # English (default)
+└── th.json    # Thai
+```
+
+#### Translation Key Naming
+
+Keys are organized into namespaces for maintainability:
+
+```json
+{
+  "common": { "save": "Save", "cancel": "Cancel" },
+  "header": { "export": "Export", "import": "Import" },
+  "setup": { "projectName": "Project Name" },
+  "dashboard": { "requirements": "Requirements" },
+  "errors": { "invalidEffort": "Please enter a valid effort value" }
+}
+```
+
+**Naming conventions:**
+
+- Use camelCase for keys: `projectName`, not `project-name`
+- Use descriptive keys: `projectNamePlaceholder`, not `placeholder1`
+- Group related keys under namespaces
+- Keep keys consistent across all language files
+
+#### Using Translations in Components
+
+```typescript
+import { useTranslation } from 'react-i18next';
+
+export function MyComponent() {
+  const { t } = useTranslation();
+
+  return (
+    <div>
+      <h1>{t('setup.createNewProject')}</h1>
+      <button>{t('common.save')}</button>
+    </div>
+  );
+}
+```
+
+#### Dynamic Values in Translations
+
+```json
+{
+  "modal": {
+    "deleteConfirmation": "Are you sure you want to delete requirement #{{id}}?"
+  }
+}
+```
+
+```typescript
+t("modal.deleteConfirmation", { id: 5 });
+// Output: "Are you sure you want to delete requirement #5?"
+```
+
+#### Adding a New Language
+
+1. Create a new translation file: `src/locales/{code}.json`
+2. Copy structure from `en.json` and translate all values
+3. Update `src/lib/i18n/config.ts`:
+   - Add language code to `SUPPORTED_LANGUAGES`
+   - Import and register the new translation file
+
+#### Thai Language Specifics
+
+- **Font**: Noto Sans Thai is loaded for proper Thai character rendering
+- **Text length**: Thai text may be longer/shorter than English; ensure UI handles variable lengths
+- **Testing**: Always test UI layout with Thai translations to check for overflow or clipping
+
 ---
 
 ## Appendix
 
 ### A. Quick Reference
 
-| Category        | Pattern/Convention                 |
-| --------------- | ---------------------------------- |
-| Storage prefix  | `ret_`                             |
-| ID format       | Sequential integers, never reused  |
-| Timestamps      | ISO 8601 strings                   |
-| Decimal places  | 2 (for effort values)              |
-| Component files | PascalCase.tsx                     |
-| Hook files      | camelCase.ts (starting with `use`) |
-| Branch naming   | `feature/`, `bugfix/`, `hotfix/`   |
-| Commit format   | `type(scope): subject`             |
+| Category          | Pattern/Convention                    |
+| ----------------- | ------------------------------------- |
+| Database          | PostgreSQL 16.x                       |
+| ORM               | Prisma 6.x                            |
+| API Base URL      | `/api`                                |
+| API Format        | JSON (Content-Type: application/json) |
+| ID format         | Auto-increment integers (SERIAL)      |
+| Timestamps        | TIMESTAMPTZ (ISO 8601 in responses)   |
+| Decimal places    | DECIMAL(6,2) for effort values        |
+| localStorage      | `ret_language` only (language pref)   |
+| Component files   | PascalCase.tsx                        |
+| Hook files        | camelCase.ts (starting with `use`)    |
+| API route files   | route.ts (in /api/\* directories)     |
+| Branch naming     | `feature/`, `bugfix/`, `hotfix/`      |
+| Commit format     | `type(scope): subject`                |
+| Translation files | `src/locales/{lang}.json`             |
+| Default language  | English (en)                          |
+| Supported langs   | English (en), Thai (th)               |
+| DB Connection     | `DATABASE_URL` environment variable   |
 
 ### B. Related Documents
 
 - [Functional Requirements](./requirement.md) - User stories and acceptance criteria
+- [PostgreSQL Migration Requirements](./requirement-2.md) - Database migration functional requirements
 - [Data Schema](./data-schema.md) - Detailed data model documentation
 - [Architecture](./architecture.md) - AWS deployment architecture
 - [UI Requirements](./ui-requirement.md) - Screen specifications and user flows
 
 ### C. Changelog
 
-| Version | Date       | Author | Changes                         |
-| ------- | ---------- | ------ | ------------------------------- |
-| 1.0     | 2026-02-11 | -      | Initial technical specification |
+| Version | Date       | Author | Changes                                                                                                                                                                                        |
+| ------- | ---------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1.0     | 2026-02-11 | -      | Initial technical specification                                                                                                                                                                |
+| 1.1     | 2026-02-11 | -      | Added i18n support: Thai language, i18next integration, translation keys                                                                                                                       |
+| 2.0     | 2026-02-11 | -      | Major architecture migration: localStorage → PostgreSQL. Added Prisma ORM, Next.js API Routes, REST API endpoints, database schema. Updated all diagrams and contracts for client-server model |

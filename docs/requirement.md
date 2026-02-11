@@ -4,7 +4,7 @@
 
 ### Document Information
 
-- **Version**: 1.0
+- **Version**: 1.1
 - **Last Updated**: 2026-02-11
 - **Status**: Draft
 
@@ -90,6 +90,17 @@ To provide users with a simple, unauthenticated web application for quickly capt
 
 ---
 
+### 2.7 Internationalization & Language Support (FR.7)
+
+| ID     | User Story                                                                                                                       | Acceptance Criteria                                                                                                                                                                                                                                                                             |
+| ------ | -------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| FR.7.1 | As a user, I want to switch between English and Thai languages, so I can use the application in my preferred language.           | 1. A language toggle/dropdown is displayed in the application header.<br>2. The toggle clearly shows the current language selection (EN/TH).<br>3. Clicking the toggle displays available language options with flag icons (🇺🇸/🇹🇭).<br>4. Selecting a language immediately updates all UI text. |
+| FR.7.2 | As a user, I want my language preference to be saved, so I don't have to select it every time I use the application.             | 1. The selected language preference is automatically saved to browser storage.<br>2. On subsequent visits, the application loads in the previously selected language.<br>3. Language preference persists across browser sessions.                                                               |
+| FR.7.3 | As a user, I want all application text to be displayed in my selected language, so I can fully understand and use all features.  | 1. All user-facing text is translated (labels, buttons, messages, placeholders).<br>2. Error messages are displayed in the selected language.<br>3. Confirmation dialogs are displayed in the selected language.<br>4. Empty state messages are displayed in the selected language.             |
+| FR.7.4 | As a user, I want Thai text to be displayed with proper Thai characters and fonts, so the text is readable and visually correct. | 1. Thai characters are rendered correctly with appropriate font support.<br>2. The UI layout accommodates different text lengths between languages.<br>3. Text remains readable and properly aligned in both languages.                                                                         |
+
+---
+
 ## 3. Data Requirements
 
 ### 3.1 Project Data
@@ -113,6 +124,7 @@ For each requirement, the system shall capture and maintain:
 The system shall capture and maintain:
 
 - **Effort Column Visibility**: Show or Hide, default Show
+- **Language Preference**: English (en) or Thai (th), default English
 
 ---
 
@@ -127,6 +139,9 @@ The system shall capture and maintain:
 | BR.5    | Creating a new project requires confirmation and permanently deletes all existing data.     |
 | BR.6    | New requirements are always added with "Active" status.                                     |
 | BR.7    | Validation errors prevent data submission until corrected.                                  |
+| BR.8    | Language preference changes are applied immediately and globally across all components.     |
+| BR.9    | The default language is English if no language preference is stored or detected.            |
+| BR.10   | Language preference persists independently of project data (not cleared on project reset).  |
 
 ---
 
@@ -171,6 +186,10 @@ The system shall capture and maintain:
 | **Inactive (Status)**   | A requirement state indicating it should be excluded from the total effort calculation.                                     |
 | **Total Active Effort** | The sum of effort values from all requirements currently marked as Active.                                                  |
 | **Project**             | A named container for organizing a set of related requirements.                                                             |
+| **i18n**                | Abbreviation for "internationalization" - the process of designing software to support multiple languages.                  |
+| **Locale**              | A set of parameters that defines the user's language and regional preferences.                                              |
+| **Translation Key**     | A unique identifier used to reference translated text strings in the application.                                           |
+| **Language Preference** | The user's selected language setting, stored in browser storage for persistence.                                            |
 
 ---
 
@@ -208,6 +227,10 @@ The following requirements were added to address gaps in the original specificat
 | FR.6.2 (List ordering)              | Original did not specify display order                 |
 | FR.6.3 (Empty state message)        | Original did not specify empty list behavior           |
 | FR.6.4 (Scrolling)                  | Original did not address long lists                    |
+| FR.7.1 (Language switching)         | Added for internationalization support                 |
+| FR.7.2 (Language persistence)       | Added to save user language preference                 |
+| FR.7.3 (Translation coverage)       | Added to ensure complete language support              |
+| FR.7.4 (Thai font support)          | Added for proper Thai character rendering              |
 
 ---
 

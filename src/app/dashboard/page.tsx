@@ -1,18 +1,26 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Header } from '@/components/layout/Header';
-import { RequirementsList } from '@/components/requirements/RequirementsList';
-import { RequirementForm } from '@/components/requirements/RequirementForm';
-import { EffortSummary } from '@/components/requirements/EffortSummary';
-import { useProject } from '@/hooks/useProject';
-import { useRequirements } from '@/hooks/useRequirements';
-import { ROUTES } from '@/lib/constants';
+import { useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { useTranslation } from "react-i18next";
+import { Header } from "@/components/layout/Header";
+import { RequirementsList } from "@/components/requirements/RequirementsList";
+import { RequirementForm } from "@/components/requirements/RequirementForm";
+import { EffortSummary } from "@/components/requirements/EffortSummary";
+import { useProject } from "@/hooks/useProject";
+import { useRequirements } from "@/hooks/useRequirements";
+import { ROUTES } from "@/lib/constants";
+import type { ExportData } from "@/types";
 
 export default function DashboardPage() {
+  const { t } = useTranslation();
   const router = useRouter();
-  const { project, isLoading: projectLoading, clearProject, hasProject } = useProject();
+  const {
+    project,
+    isLoading: projectLoading,
+    deleteProject,
+    refetch: refetchProject,
+  } = useProject();
   const {
     requirements,
     isLoading: requirementsLoading,
@@ -23,28 +31,37 @@ export default function DashboardPage() {
     toggleStatus,
     exportData,
     importData,
+    refetch: refetchRequirements,
   } = useRequirements();
 
   // Redirect to setup if no project
   useEffect(() => {
-    if (!projectLoading && !hasProject()) {
+    if (!projectLoading && !project) {
       router.push(ROUTES.SETUP);
     }
-  }, [projectLoading, hasProject, router]);
+  }, [projectLoading, project, router]);
 
-  const handleNewProject = () => {
-    clearProject();
+  const handleNewProject = useCallback(async () => {
+    await deleteProject();
     router.push(ROUTES.SETUP);
-  };
+  }, [deleteProject, router]);
 
-  const handleImport = (data: Parameters<typeof importData>[0]) => {
-    const result = importData(data);
-    if (result.isValid) {
-      // Reload the page to refresh state after import
-      window.location.reload();
-    }
-    return result;
-  };
+  const handleExport = useCallback(() => {
+    return exportData(project);
+  }, [exportData, project]);
+
+  const handleImport = useCallback(
+    async (data: ExportData): Promise<{ isValid: boolean; error?: string }> => {
+      const result = await importData(data);
+      if (result.isValid) {
+        // Refetch project and requirements after import
+        await refetchProject();
+        await refetchRequirements();
+      }
+      return result;
+    },
+    [importData, refetchProject, refetchRequirements],
+  );
 
   // Loading state
   if (projectLoading || requirementsLoading) {
@@ -52,7 +69,7 @@ export default function DashboardPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-white/60">Loading...</p>
+          <p className="text-white/60">{t("common.loading")}</p>
         </div>
       </div>
     );
@@ -68,7 +85,7 @@ export default function DashboardPage() {
       {/* Header */}
       <Header
         projectName={project.name}
-        onExport={exportData}
+        onExport={handleExport}
         onImport={handleImport}
         onNewProject={handleNewProject}
       />
@@ -81,8 +98,10 @@ export default function DashboardPage() {
             <div className="mb-4">
               <h2 className="text-xl font-semibold text-white flex items-center gap-2">
                 <i className="fas fa-list text-purple-400"></i>
-                Requirements
-                <span className="text-white/50 text-sm font-normal">({stats.total})</span>
+                {t("dashboard.requirements")}
+                <span className="text-white/50 text-sm font-normal">
+                  ({stats.total})
+                </span>
               </h2>
             </div>
             <RequirementsList
@@ -105,10 +124,9 @@ export default function DashboardPage() {
       <footer className="py-4 text-center text-white/40 text-sm border-t border-white/10">
         <p>
           <i className="fas fa-code mr-1"></i>
-          ReqTrack - Requirements Tracking Tool
+          {t("dashboard.footer")}
         </p>
       </footer>
     </div>
   );
 }
-

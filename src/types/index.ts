@@ -4,9 +4,10 @@
  */
 
 /**
- * Project entity - stored in ret_project
+ * Project entity - stored in PostgreSQL projects table
  */
 export interface Project {
+  id: number;
   name: string;
   createdAt: string; // ISO 8601
   updatedAt: string; // ISO 8601
@@ -14,10 +15,11 @@ export interface Project {
 }
 
 /**
- * Requirement entity - stored in ret_requirements array
+ * Requirement entity - stored in PostgreSQL requirements table
  */
 export interface Requirement {
   id: number;
+  projectId: number;
   description: string;
   effort: number;
   isActive: boolean;
@@ -25,7 +27,7 @@ export interface Requirement {
 }
 
 /**
- * User preferences - stored in ret_preferences
+ * User preferences - stored in localStorage (browser only)
  */
 export interface UserPreferences {
   showEffortColumn: boolean;
@@ -36,8 +38,19 @@ export interface UserPreferences {
  */
 export interface ExportData {
   projectName: string;
-  requirements: Requirement[];
+  requirements: ExportRequirement[];
   exportDate: string; // ISO 8601
+}
+
+/**
+ * Requirement format for export (without projectId)
+ */
+export interface ExportRequirement {
+  id: number;
+  description: string;
+  effort: number;
+  isActive: boolean;
+  createdAt: string;
 }
 
 /**
@@ -58,3 +71,43 @@ export interface RequirementStats {
   totalActiveEffort: number;
 }
 
+// ============ API Request/Response Types ============
+
+/**
+ * Request to create a new project
+ */
+export interface CreateProjectRequest {
+  name: string;
+}
+
+/**
+ * Request to update project
+ */
+export interface UpdateProjectRequest {
+  name?: string;
+}
+
+/**
+ * Request to create a new requirement
+ */
+export interface CreateRequirementRequest {
+  description: string;
+  effort: number;
+}
+
+/**
+ * Request to update a requirement
+ */
+export interface UpdateRequirementRequest {
+  description?: string;
+  effort?: number;
+  isActive?: boolean;
+}
+
+/**
+ * API error response format
+ */
+export interface ApiErrorResponse {
+  error: string;
+  details?: string;
+}
