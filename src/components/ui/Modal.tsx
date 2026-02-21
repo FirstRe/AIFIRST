@@ -61,18 +61,18 @@ export function Modal({
       <div
         className={`
           relative z-10 w-full max-w-md mx-4
-          bg-white/10 backdrop-blur-md 
-          border border-white/20 
+          bg-white
+          border border-gray-200
           rounded-2xl shadow-2xl
           ${className}
         `}
       >
         {title && (
-          <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
-            <h2 className="text-xl font-semibold text-white">{title}</h2>
+          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+            <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
             <button
               onClick={onClose}
-              className="text-white/60 hover:text-white transition-colors"
+              className="text-gray-400 hover:text-gray-600 transition-colors"
             >
               <i className="fas fa-times text-lg"></i>
             </button>

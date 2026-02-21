@@ -49,15 +49,15 @@ export function RequirementForm({ onSubmit }: RequirementFormProps) {
   return (
     <Card>
       <CardHeader>
-        <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-          <i className="fas fa-plus-circle text-green-400"></i>
+        <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+          <i className="fas fa-plus-circle text-green-500"></i>
           {t("requirementForm.title")}
         </h2>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-white/90 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               {t("requirementForm.description")}
             </label>
             <textarea
@@ -65,7 +65,7 @@ export function RequirementForm({ onSubmit }: RequirementFormProps) {
               onChange={(e) => setDescription(e.target.value)}
               placeholder={t("requirementForm.descriptionPlaceholder")}
               rows={3}
-              className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all duration-200 resize-none"
+              className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 resize-none"
             />
           </div>
 
@@ -81,7 +81,7 @@ export function RequirementForm({ onSubmit }: RequirementFormProps) {
           />
 
           {error && (
-            <div className="bg-red-500/20 border border-red-500/30 rounded-xl p-3 text-red-400 text-sm">
+            <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-red-600 text-sm">
               <i className="fas fa-exclamation-circle mr-2"></i>
               {error}
             </div>

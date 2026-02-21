@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { forwardRef } from 'react';
+import { forwardRef } from "react";
 
 export interface ToggleProps {
   checked: boolean;
@@ -11,7 +11,7 @@ export interface ToggleProps {
 }
 
 export const Toggle = forwardRef<HTMLButtonElement, ToggleProps>(
-  ({ checked, onChange, label, disabled = false, className = '' }, ref) => {
+  ({ checked, onChange, label, disabled = false, className = "" }, ref) => {
     return (
       <button
         ref={ref}
@@ -23,9 +23,9 @@ export const Toggle = forwardRef<HTMLButtonElement, ToggleProps>(
         className={`
           relative inline-flex h-6 w-11 items-center rounded-full
           transition-colors duration-200 ease-in-out
-          focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 focus:ring-offset-transparent
-          ${checked ? 'bg-green-500' : 'bg-white/20'}
-          ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+          focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-transparent
+          ${checked ? "bg-green-500" : "bg-gray-300"}
+          ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
           ${className}
         `}
       >
@@ -34,13 +34,12 @@ export const Toggle = forwardRef<HTMLButtonElement, ToggleProps>(
           className={`
             inline-block h-4 w-4 transform rounded-full bg-white shadow-lg
             transition-transform duration-200 ease-in-out
-            ${checked ? 'translate-x-6' : 'translate-x-1'}
+            ${checked ? "translate-x-6" : "translate-x-1"}
           `}
         />
       </button>
     );
-  }
+  },
 );
 
-Toggle.displayName = 'Toggle';
-
+Toggle.displayName = "Toggle";

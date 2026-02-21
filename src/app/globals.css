@@ -1,21 +1,20 @@
 @import "tailwindcss";
 
 :root {
-  /* Primary gradient colors */
-  --gradient-start: #667eea;
-  --gradient-mid: #764ba2;
-  --gradient-end: #f093fb;
+  /* Primary colors */
+  --primary-color: #6366f1;
+  --primary-hover: #4f46e5;
 
   /* Glass morphism */
-  --glass-bg: rgba(255, 255, 255, 0.1);
-  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-bg: rgba(255, 255, 255, 0.9);
+  --glass-border: rgba(0, 0, 0, 0.1);
   --glass-blur: 10px;
 
   /* Text colors */
-  --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.9);
-  --text-muted: rgba(255, 255, 255, 0.6);
-  --text-dim: rgba(255, 255, 255, 0.4);
+  --text-primary: #1f2937;
+  --text-secondary: #374151;
+  --text-muted: #6b7280;
+  --text-dim: #9ca3af;
 
   /* Status colors */
   --color-success: #22c55e;
@@ -34,13 +33,7 @@
 
 /* Base body styles */
 body {
-  background: linear-gradient(
-    135deg,
-    var(--gradient-start) 0%,
-    var(--gradient-mid) 50%,
-    var(--gradient-end) 100%
-  );
-  background-attachment: fixed;
+  background: #ffffff;
   color: var(--text-primary);
   font-family:
     var(--font-inter), var(--font-noto-sans-thai), system-ui, sans-serif;
@@ -49,8 +42,8 @@ body {
 
 /* Selection styles */
 ::selection {
-  background: rgba(167, 139, 250, 0.4);
-  color: white;
+  background: rgba(99, 102, 241, 0.3);
+  color: #1f2937;
 }
 
 /* Scrollbar styles */
@@ -60,17 +53,17 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
+  background: #f3f4f6;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.3);
+  background: #d1d5db;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.4);
+  background: #9ca3af;
 }
 
 /* Focus visible for accessibility */

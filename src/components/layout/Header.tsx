@@ -87,19 +87,19 @@ export function Header({
 
   return (
     <>
-      <header className="sticky top-0 z-40 bg-white/5 backdrop-blur-md border-b border-white/10">
+      <header className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo & Project Name */}
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
-                <i className="fas fa-clipboard-list text-2xl text-purple-400"></i>
-                <span className="text-xl font-bold text-white">
+                <i className="fas fa-clipboard-list text-2xl text-indigo-500"></i>
+                <span className="text-xl font-bold text-gray-900">
                   {t("common.appName")}
                 </span>
               </div>
-              <div className="hidden sm:block h-6 w-px bg-white/20"></div>
-              <h1 className="hidden sm:block text-lg font-medium text-white/90">
+              <div className="hidden sm:block h-6 w-px bg-gray-300"></div>
+              <h1 className="hidden sm:block text-lg font-medium text-gray-700">
                 {projectName}
               </h1>
             </div>
@@ -125,13 +125,13 @@ export function Header({
                       className="fixed inset-0 z-40"
                       onClick={() => setShowLanguageDropdown(false)}
                     />
-                    <div className="absolute right-0 mt-2 w-32 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl shadow-lg z-50 overflow-hidden">
+                    <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-xl shadow-lg z-50 overflow-hidden">
                       <button
                         onClick={() => handleLanguageChange("en")}
-                        className={`w-full px-4 py-2 text-left text-sm hover:bg-white/10 transition-colors flex items-center gap-2 ${
+                        className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-100 transition-colors flex items-center gap-2 ${
                           currentLanguage === "en"
-                            ? "text-purple-400 bg-white/5"
-                            : "text-white/90"
+                            ? "text-indigo-600 bg-indigo-50"
+                            : "text-gray-700"
                         }`}
                       >
                         <span className="w-6 text-center">🇺🇸</span>
@@ -139,10 +139,10 @@ export function Header({
                       </button>
                       <button
                         onClick={() => handleLanguageChange("th")}
-                        className={`w-full px-4 py-2 text-left text-sm hover:bg-white/10 transition-colors flex items-center gap-2 ${
+                        className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-100 transition-colors flex items-center gap-2 ${
                           currentLanguage === "th"
-                            ? "text-purple-400 bg-white/5"
-                            : "text-white/90"
+                            ? "text-indigo-600 bg-indigo-50"
+                            : "text-gray-700"
                         }`}
                       >
                         <span className="w-6 text-center">🇹🇭</span>
@@ -153,7 +153,7 @@ export function Header({
                 )}
               </div>
 
-              <div className="h-6 w-px bg-white/20 hidden sm:block"></div>
+              <div className="h-6 w-px bg-gray-300 hidden sm:block"></div>
 
               <Button variant="ghost" size="sm" onClick={handleExport}>
                 <i className="fas fa-download mr-2"></i>
@@ -203,7 +203,7 @@ export function Header({
         onClose={() => setShowNewProjectModal(false)}
         title={t("modal.createNewProject")}
       >
-        <p className="text-white/80 mb-6">
+        <p className="text-gray-600 mb-6">
           {t("modal.newProjectConfirmation")}
         </p>
         <div className="flex gap-3 justify-end">

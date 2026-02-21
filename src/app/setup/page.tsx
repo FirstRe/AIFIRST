@@ -36,24 +36,24 @@ export default function SetupPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 mb-4">
-            <i className="fas fa-clipboard-list text-4xl text-purple-400"></i>
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-indigo-100 border border-indigo-200 mb-4">
+            <i className="fas fa-clipboard-list text-4xl text-indigo-500"></i>
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
             {t("common.appName")}
           </h1>
-          <p className="text-white/60">{t("setup.tagline")}</p>
+          <p className="text-gray-500">{t("setup.tagline")}</p>
         </div>
 
         {/* Setup Card */}
         <Card>
           <CardHeader>
-            <h2 className="text-xl font-semibold text-white text-center">
-              <i className="fas fa-rocket text-purple-400 mr-2"></i>
+            <h2 className="text-xl font-semibold text-gray-900 text-center">
+              <i className="fas fa-rocket text-indigo-500 mr-2"></i>
               {t("setup.createNewProject")}
             </h2>
           </CardHeader>
@@ -70,7 +70,7 @@ export default function SetupPage() {
               />
 
               {error && (
-                <div className="bg-red-500/20 border border-red-500/30 rounded-xl p-3 text-red-400 text-sm">
+                <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-red-600 text-sm">
                   <i className="fas fa-exclamation-circle mr-2"></i>
                   {error}
                 </div>
@@ -96,14 +96,14 @@ export default function SetupPage() {
               </Button>
             </form>
 
-            <p className="text-center text-white/50 text-sm mt-6">
+            <p className="text-center text-gray-400 text-sm mt-6">
               {t("setup.localStorageNote")}
             </p>
           </CardContent>
         </Card>
 
         {/* Footer */}
-        <p className="text-center text-white/40 text-sm mt-8">
+        <p className="text-center text-gray-400 text-sm mt-8">
           <i className="fas fa-heart text-pink-400 mr-1"></i>
           {t("setup.builtWith")}
         </p>

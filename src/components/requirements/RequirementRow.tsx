@@ -92,11 +92,11 @@ export function RequirementRow({
   return (
     <>
       <tr
-        className={`border-b border-white/10 hover:bg-white/5 transition-colors ${!requirement.isActive ? "opacity-50" : ""}`}
+        className={`border-b border-gray-200 hover:bg-gray-50 transition-colors ${!requirement.isActive ? "opacity-50" : ""}`}
       >
         {/* ID */}
         <td className="px-4 py-4 text-center">
-          <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-purple-500/20 text-purple-300 font-medium text-sm">
+          <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 font-medium text-sm">
             {requirement.id}
           </span>
         </td>
@@ -107,12 +107,12 @@ export function RequirementRow({
             <textarea
               value={editDescription}
               onChange={(e) => setEditDescription(e.target.value)}
-              className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none"
+              className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
               rows={2}
             />
           ) : (
             <span
-              className={`text-white/90 ${!requirement.isActive ? "line-through" : ""}`}
+              className={`text-gray-700 ${!requirement.isActive ? "line-through" : ""}`}
             >
               {requirement.description}
             </span>
@@ -131,7 +131,7 @@ export function RequirementRow({
               className="w-24 text-center text-sm"
             />
           ) : (
-            <span className="text-white/90">
+            <span className="text-gray-700">
               {formatEffort(requirement.effort)}
             </span>
           )}
@@ -201,7 +201,7 @@ export function RequirementRow({
       {isEditing && error && (
         <tr>
           <td colSpan={5} className="px-4 py-2">
-            <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-2 text-red-400 text-sm">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-2 text-red-600 text-sm">
               <i className="fas fa-exclamation-circle mr-2"></i>
               {error}
             </div>
@@ -215,7 +215,7 @@ export function RequirementRow({
         onClose={() => setShowDeleteConfirm(false)}
         title={t("modal.deleteRequirement")}
       >
-        <p className="text-white/80 mb-6">
+        <p className="text-gray-600 mb-6">
           {t("modal.deleteConfirmation", { id: requirement.id })}
         </p>
         <div className="flex gap-3 justify-end">

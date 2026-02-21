@@ -15,21 +15,21 @@ export function EffortSummary({ stats }: EffortSummaryProps) {
   return (
     <Card>
       <CardHeader>
-        <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-          <i className="fas fa-chart-pie text-purple-400"></i>
+        <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+          <i className="fas fa-chart-pie text-indigo-500"></i>
           {t("effortSummary.title")}
         </h2>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           {/* Total Active Effort */}
-          <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-xl p-4">
-            <div className="text-sm text-white/60 mb-1">
+          <div className="bg-gradient-to-r from-indigo-100 to-purple-100 rounded-xl p-4">
+            <div className="text-sm text-gray-500 mb-1">
               {t("effortSummary.totalActiveEffort")}
             </div>
-            <div className="text-3xl font-bold text-white">
+            <div className="text-3xl font-bold text-gray-900">
               {formatEffort(stats.totalActiveEffort)}
-              <span className="text-lg font-normal text-white/60 ml-1">
+              <span className="text-lg font-normal text-gray-500 ml-1">
                 {t("common.manDays")}
               </span>
             </div>
@@ -37,25 +37,27 @@ export function EffortSummary({ stats }: EffortSummaryProps) {
 
           {/* Stats Grid */}
           <div className="grid grid-cols-3 gap-3">
-            <div className="bg-white/5 rounded-xl p-3 text-center">
-              <div className="text-2xl font-bold text-white">{stats.total}</div>
-              <div className="text-xs text-white/60">
+            <div className="bg-gray-100 rounded-xl p-3 text-center">
+              <div className="text-2xl font-bold text-gray-900">
+                {stats.total}
+              </div>
+              <div className="text-xs text-gray-500">
                 {t("effortSummary.total")}
               </div>
             </div>
-            <div className="bg-green-500/20 rounded-xl p-3 text-center">
-              <div className="text-2xl font-bold text-green-400">
+            <div className="bg-green-100 rounded-xl p-3 text-center">
+              <div className="text-2xl font-bold text-green-600">
                 {stats.active}
               </div>
-              <div className="text-xs text-white/60">
+              <div className="text-xs text-gray-500">
                 {t("effortSummary.active")}
               </div>
             </div>
-            <div className="bg-white/5 rounded-xl p-3 text-center">
-              <div className="text-2xl font-bold text-white/50">
+            <div className="bg-gray-100 rounded-xl p-3 text-center">
+              <div className="text-2xl font-bold text-gray-400">
                 {stats.inactive}
               </div>
-              <div className="text-xs text-white/60">
+              <div className="text-xs text-gray-500">
                 {t("effortSummary.inactive")}
               </div>
             </div>

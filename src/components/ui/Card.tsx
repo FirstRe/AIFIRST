@@ -10,7 +10,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
   ({ className = "", variant = "glass", children, ...props }, ref) => {
     const variants = {
       default: "bg-white shadow-lg",
-      glass: "bg-white/10 backdrop-blur-md border border-white/20 shadow-xl",
+      glass: "bg-white border border-gray-200 shadow-lg",
     };
 
     return (
@@ -34,7 +34,7 @@ export const CardHeader = forwardRef<HTMLDivElement, CardHeaderProps>(
     return (
       <div
         ref={ref}
-        className={`px-6 py-4 border-b border-white/10 ${className}`}
+        className={`px-6 py-4 border-b border-gray-200 ${className}`}
         {...props}
       >
         {children}

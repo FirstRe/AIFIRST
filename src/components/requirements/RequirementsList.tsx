@@ -37,20 +37,20 @@ export function RequirementsList({
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="bg-white/5 border-b border-white/10">
-              <th className="px-4 py-3 text-center text-sm font-semibold text-white/80 w-16">
+            <tr className="bg-gray-50 border-b border-gray-200">
+              <th className="px-4 py-3 text-center text-sm font-semibold text-gray-600 w-16">
                 {t("requirementsList.id")}
               </th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-white/80">
+              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">
                 {t("requirementsList.description")}
               </th>
-              <th className="px-4 py-3 text-center text-sm font-semibold text-white/80 w-32">
+              <th className="px-4 py-3 text-center text-sm font-semibold text-gray-600 w-32">
                 {t("requirementsList.effort")}
               </th>
-              <th className="px-4 py-3 text-center text-sm font-semibold text-white/80 w-24">
+              <th className="px-4 py-3 text-center text-sm font-semibold text-gray-600 w-24">
                 {t("requirementsList.status")}
               </th>
-              <th className="px-4 py-3 text-center text-sm font-semibold text-white/80 w-28">
+              <th className="px-4 py-3 text-center text-sm font-semibold text-gray-600 w-28">
                 {t("requirementsList.actions")}
               </th>
             </tr>

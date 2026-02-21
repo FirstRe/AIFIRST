@@ -68,8 +68,8 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-white/60">{t("common.loading")}</p>
+          <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-500">{t("common.loading")}</p>
         </div>
       </div>
     );
@@ -81,7 +81,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gray-50">
       {/* Header */}
       <Header
         projectName={project.name}
@@ -96,10 +96,10 @@ export default function DashboardPage() {
           {/* Requirements List - 8 cols */}
           <div className="lg:col-span-8">
             <div className="mb-4">
-              <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-                <i className="fas fa-list text-purple-400"></i>
+              <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                <i className="fas fa-list text-indigo-500"></i>
                 {t("dashboard.requirements")}
-                <span className="text-white/50 text-sm font-normal">
+                <span className="text-gray-400 text-sm font-normal">
                   ({stats.total})
                 </span>
               </h2>
@@ -121,7 +121,7 @@ export default function DashboardPage() {
       </main>
 
       {/* Footer */}
-      <footer className="py-4 text-center text-white/40 text-sm border-t border-white/10">
+      <footer className="py-4 text-center text-gray-400 text-sm border-t border-gray-200">
         <p>
           <i className="fas fa-code mr-1"></i>
           {t("dashboard.footer")}
