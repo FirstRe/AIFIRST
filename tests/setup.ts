@@ -27,29 +27,35 @@ afterAll(async () => {
 
 beforeEach(async () => {
   // Clean database before each test - order matters due to foreign keys
-  await prisma.requirement.deleteMany();
-  await prisma.project.deleteMany();
+  await prisma.productIngredient.deleteMany();
+  await prisma.product.deleteMany();
+  await prisma.ingredient.deleteMany();
 });
 
-// Helper function to create a requirement via API
-export async function createRequirementViaAPI(
-  description: string,
-  effort: number,
+// Helper function to create an ingredient via API
+export async function createIngredientViaAPI(
+  name: string,
+  costPerUnit: number,
+  unit: string,
 ) {
-  const response = await fetch(`${BASE_URL}/api/requirements`, {
+  const response = await fetch(`${BASE_URL}/api/ingredients`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ description, effort }),
+    body: JSON.stringify({ name, costPerUnit, unit }),
   });
   return response.json();
 }
 
-// Helper function to create a project via API
-export async function createProjectViaAPI(name: string) {
-  const response = await fetch(`${BASE_URL}/api/project`, {
+// Helper function to create a product via API
+export async function createProductViaAPI(
+  name: string,
+  sellingPrice: number,
+  ingredients?: { ingredientId: number; quantityUsed: number }[],
+) {
+  const response = await fetch(`${BASE_URL}/api/products`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name }),
+    body: JSON.stringify({ name, sellingPrice, ingredients }),
   });
   return response.json();
 }

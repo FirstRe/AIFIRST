@@ -4,50 +4,19 @@
  */
 
 /**
- * localStorage key names (limited to language preference only after PostgreSQL migration)
+ * localStorage key names
  */
 export const STORAGE_KEYS = {
-  LANGUAGE: "ret_language",
+  LANGUAGE: "shop_language",
 } as const;
 
 /**
  * API endpoint paths
  */
 export const API_ENDPOINTS = {
-  PROJECT: "/api/project",
-  REQUIREMENTS: "/api/requirements",
   HEALTH: "/api/health",
   INGREDIENTS: "/api/ingredients",
   PRODUCTS: "/api/products",
-} as const;
-
-/**
- * Validation constraints
- */
-export const CONSTRAINTS = {
-  PROJECT_NAME: {
-    MIN_LENGTH: 1,
-    MAX_LENGTH: 100,
-  },
-  DESCRIPTION: {
-    MIN_LENGTH: 1,
-    MAX_LENGTH: 500,
-  },
-  EFFORT: {
-    MIN: 0.01,
-    MAX: 9999,
-    DECIMAL_PLACES: 2,
-  },
-} as const;
-
-/**
- * Default values
- */
-export const DEFAULTS = {
-  SHOW_EFFORT_COLUMN: true,
-  SCHEMA_VERSION: 1,
-  NEXT_REQUIREMENT_ID: 1,
-  IS_ACTIVE: true,
 } as const;
 
 /**
@@ -55,33 +24,7 @@ export const DEFAULTS = {
  */
 export const ROUTES = {
   HOME: "/",
-  SETUP: "/setup",
-  DASHBOARD: "/dashboard",
-} as const;
-
-/**
- * Error messages
- */
-export const ERROR_MESSAGES = {
-  PROJECT_NAME: {
-    REQUIRED: "Project name is required",
-    MAX_LENGTH: "Project name cannot exceed 100 characters",
-    EMPTY: "Project name cannot be empty",
-  },
-  DESCRIPTION: {
-    REQUIRED: "Requirement description is required",
-    MAX_LENGTH: "Description cannot exceed 500 characters",
-    EMPTY: "Requirement description cannot be empty",
-  },
-  EFFORT: {
-    REQUIRED: "Effort value is required",
-    INVALID: "Effort must be a number",
-    MIN: "Effort must be greater than zero",
-    MAX: "Effort cannot exceed 9999",
-    DECIMAL: "Effort can have at most 2 decimal places",
-  },
-  IMPORT: {
-    INVALID_FORMAT: "Invalid file format",
-    READ_ERROR: "Error reading file",
-  },
+  ADMIN: "/admin",
+  ADMIN_INGREDIENTS: "/admin/ingredients",
+  ADMIN_PRODUCTS: "/admin/products",
 } as const;

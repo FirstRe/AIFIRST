@@ -3,112 +3,127 @@
  * All validation functions for user inputs
  */
 
-import { CONSTRAINTS, ERROR_MESSAGES } from './constants';
-import type { ValidationResult, ExportData } from '@/types';
+import type { ValidationResult } from "@/types";
 
 /**
- * Validate project name
+ * Validate ingredient name
  */
-export function validateProjectName(name: string): ValidationResult {
+export function validateIngredientName(name: string): ValidationResult {
   const trimmed = name.trim();
-  
+
   if (!trimmed) {
-    return { isValid: false, error: ERROR_MESSAGES.PROJECT_NAME.REQUIRED };
+    return { isValid: false, error: "Ingredient name is required" };
   }
-  
-  if (/^\s+$/.test(name)) {
-    return { isValid: false, error: ERROR_MESSAGES.PROJECT_NAME.EMPTY };
+
+  if (trimmed.length > 255) {
+    return {
+      isValid: false,
+      error: "Ingredient name cannot exceed 255 characters",
+    };
   }
-  
-  if (trimmed.length > CONSTRAINTS.PROJECT_NAME.MAX_LENGTH) {
-    return { isValid: false, error: ERROR_MESSAGES.PROJECT_NAME.MAX_LENGTH };
-  }
-  
+
   return { isValid: true };
 }
 
 /**
- * Validate requirement description
+ * Validate cost per unit
  */
-export function validateDescription(description: string): ValidationResult {
-  const trimmed = description.trim();
-  
-  if (!trimmed) {
-    return { isValid: false, error: ERROR_MESSAGES.DESCRIPTION.REQUIRED };
+export function validateCostPerUnit(cost: string | number): ValidationResult {
+  if (cost === "" || cost === null || cost === undefined) {
+    return { isValid: false, error: "Cost per unit is required" };
   }
-  
-  if (/^\s+$/.test(description)) {
-    return { isValid: false, error: ERROR_MESSAGES.DESCRIPTION.EMPTY };
-  }
-  
-  if (trimmed.length > CONSTRAINTS.DESCRIPTION.MAX_LENGTH) {
-    return { isValid: false, error: ERROR_MESSAGES.DESCRIPTION.MAX_LENGTH };
-  }
-  
-  return { isValid: true };
-}
 
-/**
- * Validate effort value
- */
-export function validateEffort(effort: string | number): ValidationResult {
-  if (effort === '' || effort === null || effort === undefined) {
-    return { isValid: false, error: ERROR_MESSAGES.EFFORT.REQUIRED };
-  }
-  
-  const numValue = typeof effort === 'string' ? parseFloat(effort) : effort;
-  
+  const numValue = typeof cost === "string" ? parseFloat(cost) : cost;
+
   if (isNaN(numValue)) {
-    return { isValid: false, error: ERROR_MESSAGES.EFFORT.INVALID };
+    return { isValid: false, error: "Cost must be a valid number" };
   }
-  
-  if (numValue <= 0) {
-    return { isValid: false, error: ERROR_MESSAGES.EFFORT.MIN };
+
+  if (numValue < 0) {
+    return { isValid: false, error: "Cost cannot be negative" };
   }
-  
-  if (numValue > CONSTRAINTS.EFFORT.MAX) {
-    return { isValid: false, error: ERROR_MESSAGES.EFFORT.MAX };
-  }
-  
-  // Check decimal places
-  const effortStr = String(effort);
-  if (effortStr.includes('.')) {
-    const decimalPart = effortStr.split('.')[1];
-    if (decimalPart && decimalPart.length > CONSTRAINTS.EFFORT.DECIMAL_PLACES) {
-      return { isValid: false, error: ERROR_MESSAGES.EFFORT.DECIMAL };
-    }
-  }
-  
+
   return { isValid: true };
 }
 
 /**
- * Validate import data structure
+ * Validate unit
  */
-export function validateImportData(data: unknown): ValidationResult {
-  if (!data || typeof data !== 'object') {
-    return { isValid: false, error: ERROR_MESSAGES.IMPORT.INVALID_FORMAT };
+export function validateUnit(unit: string): ValidationResult {
+  const trimmed = unit.trim();
+
+  if (!trimmed) {
+    return { isValid: false, error: "Unit is required" };
   }
-  
-  const importData = data as ExportData;
-  
-  if (!importData.projectName || typeof importData.projectName !== 'string') {
-    return { isValid: false, error: ERROR_MESSAGES.IMPORT.INVALID_FORMAT };
+
+  if (trimmed.length > 50) {
+    return { isValid: false, error: "Unit cannot exceed 50 characters" };
   }
-  
-  if (!Array.isArray(importData.requirements)) {
-    return { isValid: false, error: ERROR_MESSAGES.IMPORT.INVALID_FORMAT };
-  }
-  
-  // Validate each requirement has required fields
-  for (const req of importData.requirements) {
-    if (typeof req.id !== 'number' ||
-        typeof req.description !== 'string' ||
-        typeof req.effort !== 'number') {
-      return { isValid: false, error: ERROR_MESSAGES.IMPORT.INVALID_FORMAT };
-    }
-  }
-  
+
   return { isValid: true };
 }
 
+/**
+ * Validate product name
+ */
+export function validateProductName(name: string): ValidationResult {
+  const trimmed = name.trim();
+
+  if (!trimmed) {
+    return { isValid: false, error: "Product name is required" };
+  }
+
+  if (trimmed.length > 255) {
+    return {
+      isValid: false,
+      error: "Product name cannot exceed 255 characters",
+    };
+  }
+
+  return { isValid: true };
+}
+
+/**
+ * Validate selling price
+ */
+export function validateSellingPrice(price: string | number): ValidationResult {
+  if (price === "" || price === null || price === undefined) {
+    return { isValid: false, error: "Selling price is required" };
+  }
+
+  const numValue = typeof price === "string" ? parseFloat(price) : price;
+
+  if (isNaN(numValue)) {
+    return { isValid: false, error: "Price must be a valid number" };
+  }
+
+  if (numValue < 0) {
+    return { isValid: false, error: "Price cannot be negative" };
+  }
+
+  return { isValid: true };
+}
+
+/**
+ * Validate quantity used
+ */
+export function validateQuantityUsed(
+  quantity: string | number,
+): ValidationResult {
+  if (quantity === "" || quantity === null || quantity === undefined) {
+    return { isValid: false, error: "Quantity is required" };
+  }
+
+  const numValue =
+    typeof quantity === "string" ? parseFloat(quantity) : quantity;
+
+  if (isNaN(numValue)) {
+    return { isValid: false, error: "Quantity must be a valid number" };
+  }
+
+  if (numValue <= 0) {
+    return { isValid: false, error: "Quantity must be greater than zero" };
+  }
+
+  return { isValid: true };
+}
