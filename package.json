@@ -28,6 +28,9 @@
     "react-dom": "19.1.0",
     "react-i18next": "^16.5.4"
   },
+  "prisma": {
+    "seed": "npx tsx prisma/seed.ts"
+  },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",

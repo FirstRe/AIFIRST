@@ -17,6 +17,8 @@ export const API_ENDPOINTS = {
   PROJECT: "/api/project",
   REQUIREMENTS: "/api/requirements",
   HEALTH: "/api/health",
+  INGREDIENTS: "/api/ingredients",
+  PRODUCTS: "/api/products",
 } as const;
 
 /**

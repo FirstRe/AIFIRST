@@ -3,7 +3,7 @@
  * Provides typed fetch wrapper functions for all API endpoints
  */
 
-import { API_ENDPOINTS } from './constants';
+import { API_ENDPOINTS } from "./constants";
 import type {
   Project,
   Requirement,
@@ -12,19 +12,23 @@ import type {
   CreateRequirementRequest,
   UpdateRequirementRequest,
   ApiErrorResponse,
-} from '@/types';
+  Ingredient,
+  Product,
+  CreateIngredientRequest,
+  UpdateIngredientRequest,
+  CreateProductRequest,
+  UpdateProductRequest,
+  UpdateProductIngredientsRequest,
+} from "@/types";
 
 /**
  * Generic fetch wrapper with error handling
  */
-async function apiFetch<T>(
-  url: string,
-  options?: RequestInit
-): Promise<T> {
+async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
   const response = await fetch(url, {
     ...options,
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...options?.headers,
     },
   });
@@ -33,7 +37,7 @@ async function apiFetch<T>(
     const errorData: ApiErrorResponse = await response.json().catch(() => ({
       error: `HTTP ${response.status}: ${response.statusText}`,
     }));
-    throw new Error(errorData.error || 'An error occurred');
+    throw new Error(errorData.error || "An error occurred");
   }
 
   // Handle 204 No Content
@@ -55,7 +59,7 @@ export const projectApi = {
       return await apiFetch<Project>(API_ENDPOINTS.PROJECT);
     } catch (error) {
       // Return null if no project exists (404)
-      if (error instanceof Error && error.message.includes('404')) {
+      if (error instanceof Error && error.message.includes("404")) {
         return null;
       }
       throw error;
@@ -67,7 +71,7 @@ export const projectApi = {
    */
   async create(data: CreateProjectRequest): Promise<Project> {
     return apiFetch<Project>(API_ENDPOINTS.PROJECT, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify(data),
     });
   },
@@ -77,7 +81,7 @@ export const projectApi = {
    */
   async update(data: UpdateProjectRequest): Promise<Project> {
     return apiFetch<Project>(API_ENDPOINTS.PROJECT, {
-      method: 'PUT',
+      method: "PUT",
       body: JSON.stringify(data),
     });
   },
@@ -87,7 +91,7 @@ export const projectApi = {
    */
   async delete(): Promise<void> {
     await apiFetch<void>(API_ENDPOINTS.PROJECT, {
-      method: 'DELETE',
+      method: "DELETE",
     });
   },
 };
@@ -103,7 +107,7 @@ export const requirementsApi = {
       return await apiFetch<Requirement[]>(API_ENDPOINTS.REQUIREMENTS);
     } catch (error) {
       // Return empty array if no project exists
-      if (error instanceof Error && error.message.includes('404')) {
+      if (error instanceof Error && error.message.includes("404")) {
         return [];
       }
       throw error;
@@ -115,7 +119,7 @@ export const requirementsApi = {
    */
   async create(data: CreateRequirementRequest): Promise<Requirement> {
     return apiFetch<Requirement>(API_ENDPOINTS.REQUIREMENTS, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify(data),
     });
   },
@@ -130,9 +134,12 @@ export const requirementsApi = {
   /**
    * Update a requirement
    */
-  async update(id: number, data: UpdateRequirementRequest): Promise<Requirement> {
+  async update(
+    id: number,
+    data: UpdateRequirementRequest,
+  ): Promise<Requirement> {
     return apiFetch<Requirement>(`${API_ENDPOINTS.REQUIREMENTS}/${id}`, {
-      method: 'PUT',
+      method: "PUT",
       body: JSON.stringify(data),
     });
   },
@@ -142,7 +149,7 @@ export const requirementsApi = {
    */
   async delete(id: number): Promise<void> {
     await apiFetch<void>(`${API_ENDPOINTS.REQUIREMENTS}/${id}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
   },
 
@@ -151,7 +158,7 @@ export const requirementsApi = {
    */
   async toggle(id: number): Promise<Requirement> {
     return apiFetch<Requirement>(`${API_ENDPOINTS.REQUIREMENTS}/${id}/toggle`, {
-      method: 'PATCH',
+      method: "PATCH",
     });
   },
 };
@@ -163,7 +170,115 @@ export const healthApi = {
    * Check API health
    */
   async check(): Promise<{ status: string; timestamp: string }> {
-    return apiFetch<{ status: string; timestamp: string }>(API_ENDPOINTS.HEALTH);
+    return apiFetch<{ status: string; timestamp: string }>(
+      API_ENDPOINTS.HEALTH,
+    );
   },
 };
 
+// ============ Ingredients API ============
+
+export const ingredientsApi = {
+  /**
+   * Get all ingredients
+   */
+  async getAll(): Promise<Ingredient[]> {
+    return apiFetch<Ingredient[]>(API_ENDPOINTS.INGREDIENTS);
+  },
+
+  /**
+   * Get a single ingredient by ID
+   */
+  async get(id: number): Promise<Ingredient> {
+    return apiFetch<Ingredient>(`${API_ENDPOINTS.INGREDIENTS}/${id}`);
+  },
+
+  /**
+   * Create a new ingredient
+   */
+  async create(data: CreateIngredientRequest): Promise<Ingredient> {
+    return apiFetch<Ingredient>(API_ENDPOINTS.INGREDIENTS, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  },
+
+  /**
+   * Update an ingredient
+   */
+  async update(id: number, data: UpdateIngredientRequest): Promise<Ingredient> {
+    return apiFetch<Ingredient>(`${API_ENDPOINTS.INGREDIENTS}/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+  },
+
+  /**
+   * Delete an ingredient
+   */
+  async delete(id: number): Promise<void> {
+    await apiFetch<void>(`${API_ENDPOINTS.INGREDIENTS}/${id}`, {
+      method: "DELETE",
+    });
+  },
+};
+
+// ============ Products API ============
+
+export const productsApi = {
+  /**
+   * Get all products with ingredients
+   */
+  async getAll(): Promise<Product[]> {
+    return apiFetch<Product[]>(API_ENDPOINTS.PRODUCTS);
+  },
+
+  /**
+   * Get a single product by ID
+   */
+  async get(id: number): Promise<Product> {
+    return apiFetch<Product>(`${API_ENDPOINTS.PRODUCTS}/${id}`);
+  },
+
+  /**
+   * Create a new product
+   */
+  async create(data: CreateProductRequest): Promise<Product> {
+    return apiFetch<Product>(API_ENDPOINTS.PRODUCTS, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  },
+
+  /**
+   * Update a product (name, sellingPrice only)
+   */
+  async update(id: number, data: UpdateProductRequest): Promise<Product> {
+    return apiFetch<Product>(`${API_ENDPOINTS.PRODUCTS}/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+  },
+
+  /**
+   * Delete a product
+   */
+  async delete(id: number): Promise<void> {
+    await apiFetch<void>(`${API_ENDPOINTS.PRODUCTS}/${id}`, {
+      method: "DELETE",
+    });
+  },
+
+  /**
+   * Update product ingredients (replace all and recalculate cost)
+   */
+  async updateIngredients(
+    id: number,
+    data: UpdateProductIngredientsRequest,
+  ): Promise<Product> {
+    return apiFetch<Product>(`${API_ENDPOINTS.PRODUCTS}/${id}/ingredients`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+  },
+};
